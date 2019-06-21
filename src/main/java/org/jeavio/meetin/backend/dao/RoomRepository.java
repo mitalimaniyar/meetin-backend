@@ -13,4 +13,6 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
 
 	@Query("SELECT new org.jeavio.meetin.backend.dto.RoomDetails(r.id,r.roomName,r.capacity,r.specifications) from Room r ORDER BY r.roomName ASC")
 	List<RoomDetails> getRooms();
+
+	boolean existsByRoomName(String roomName);
 }

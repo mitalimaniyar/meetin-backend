@@ -25,7 +25,7 @@ public class Room extends UserDateAudit {
 	private Integer id;
 
 	@NonNull
-	@Column(name = "room_name")
+	@Column(name = "room_name",unique = true)
 	@Size(max = 50)
 	private String roomName;
 

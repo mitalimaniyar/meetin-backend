@@ -53,8 +53,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
-        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-            return token.substring(7);
+        if (StringUtils.hasText(token)) {
+//            return token.substring(7);
+        	return token;
         }
         return null;
     }

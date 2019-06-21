@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/rooms")
 public class RoomsController {
 
 	@Autowired
 	RoomService roomService;
 	
-	@RequestMapping(method = RequestMethod.GET,path = "/")
+	@RequestMapping(method = RequestMethod.GET,path = "/api/rooms")
 	public ResponseEntity<?> getAllRooms(){
 		ResponseEntity<?> response=roomService.fetchRooms();
 		return response;
