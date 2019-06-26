@@ -20,4 +20,19 @@ public interface TeamService {
 
 	void removeTeamMember(Integer teamId, String empId);
 
+	List<UserInfo> findTeamMembers(Integer teamId);
+
+	List<UserInfo> findTeamMembers(String teamName);
+	
+	boolean existsByTeamName(String teamName);
+	
+	boolean existsByTeamId(Integer teamId);
+	
+	void addTeam(String teamName);
+	
+	void removeTeam(String teamName);
+	
+	void updateTeamName(Integer teamId,String newTeamName);
+
+	List<String> getTeamNames();
 }

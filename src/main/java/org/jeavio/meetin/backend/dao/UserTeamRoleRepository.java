@@ -35,17 +35,22 @@ public interface UserTeamRoleRepository extends CrudRepository<UserTeamRole, Int
 			+ "WHERE utr.user.id NOT IN (SELECT DISTINCT utr.user.id FROM UserTeamRole utr WHERE utr.team.id = :teamId)")
 	public List<UserInfo> finNonTeamMembers(@Param("teamId") Integer teamId);
 
-	@Query("SELECT CASE WHEN count(utr)> 0 THEN true ELSE false END FROM UserTeamRole utr WHERE utr.user = :user AND utr.team = :team AND utr.role = :role ")
-	public boolean existRecord(@Param("user") User user, @Param("team") Team team, @Param("role") Role role);
-
 	@Modifying
 	@Query("DELETE FROM UserTeamRole utr where utr.user.id = :userId AND utr.team.id = :teamId ")
 	@Transactional
 	public void deleteByUserId(@Param("userId") Integer userId, @Param("teamId") Integer teamId);
 
 	@Query("SELECT CASE WHEN count(utr)> 0 THEN true ELSE false END FROM UserTeamRole utr WHERE utr.user = :user AND utr.role = :role AND utr.team IS NULL")
-	public boolean existAdmin(@Param("user") User user, @Param("role") Role role);
+	public boolean existsAsAdmin(@Param("user") User user, @Param("role") Role role);
 
 	public UserTeamRole findByUserAndTeamAndRole(User user, Team team, Role memberRole);
+	
+	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.id = :teamId")
+	public List<UserInfo> findTeamMembers(Integer teamId);
+
+	public boolean existsByUserAndTeamAndRole(User user, Team team, Role role);
+
+	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.teamName = :teamName")
+	public List<UserInfo> findTeamMembersByTeamName(@Param("teamName")String teamName);
 
 }

@@ -2,8 +2,11 @@ package org.jeavio.meetin.backend.dao;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.jeavio.meetin.backend.dto.RoomDetails;
 import org.jeavio.meetin.backend.model.Room;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +18,8 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
 	List<RoomDetails> getRooms();
 
 	boolean existsByRoomName(String roomName);
+
+	@Modifying
+	@Transactional
+	void deleteByRoomName(String roomName);
 }

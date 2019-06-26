@@ -1,18 +1,14 @@
 package org.jeavio.meetin.backend.dto;
 
-import javax.validation.constraints.NotBlank;
-
 import org.springframework.lang.NonNull;
 
 
 
 public class LoginRequest {
 	
-    @NotBlank
     @NonNull
     private String username;
 
-    @NotBlank
     @NonNull
     private String password;
 

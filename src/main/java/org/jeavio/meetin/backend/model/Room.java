@@ -25,7 +25,7 @@ public class Room extends UserDateAudit {
 	private Integer id;
 
 	@NonNull
-	@Column(name = "room_name",unique = true)
+	@Column(name = "room_name", unique = true)
 	@Size(max = 50)
 	private String roomName;
 
@@ -34,11 +34,12 @@ public class Room extends UserDateAudit {
 
 	private String specifications;
 
-	public Room() { 	}
+	public Room() {
+	}
 
-	public Room(@Size(max = 50) String roomName,Integer capacity) {
-		this.roomName=roomName;
-		this.capacity=capacity;
+	public Room(@Size(max = 50) String roomName, Integer capacity) {
+		this.roomName = roomName;
+		this.capacity = capacity;
 	}
 
 	public Room(@Size(max = 50) String roomName, Integer capacity, String specifications) {

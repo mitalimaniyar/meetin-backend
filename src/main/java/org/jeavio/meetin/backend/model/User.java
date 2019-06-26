@@ -63,19 +63,8 @@ public class User extends UserDateAudit {
 	public User() {
 	}
 
-	public User(@Size(max = 7, min = 7) String empId, @Size(max = 50) String firstName, @Size(max = 70) String username,
-			@Size(max = 100) String password, @Email String email, Set<UserTeamRole> userTeamRole) {
-		this.empId = empId;
-		this.firstName = firstName;
-		this.username = username;
-		this.password = password;
-		this.email = email;
-		this.userTeamRole = userTeamRole;
-	}
-
 	public User(@Size(max = 7, min = 7) String empId, @Size(max = 50) String firstName, @Size(max = 50) String lastName,
-			@Size(max = 70) String username, @Size(max = 100) String password, @Email String email,
-			Set<UserTeamRole> userTeamRole) {
+			@Size(max = 70) String username, @Size(max = 100) String password, @Email String email) {
 		super();
 		this.empId = empId;
 		this.firstName = firstName;
@@ -83,7 +72,6 @@ public class User extends UserDateAudit {
 		this.username = username;
 		this.password = password;
 		this.email = email;
-		this.userTeamRole = userTeamRole;
 	}
 
 	public Integer getId() {

@@ -1,6 +1,13 @@
 HELP.md
-/target/
+target/
 !.mvn/wrapper/maven-wrapper.jar
+
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
 ### STS ###
 .apt_generated
@@ -23,7 +30,7 @@ HELP.md
 /dist/
 /nbdist/
 /.nb-gradle/
-/build/
+build/
 
 ### VS Code ###
 .vscode/

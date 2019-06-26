@@ -1,9 +1,20 @@
 package org.jeavio.meetin.backend.service;
 
-import org.springframework.http.ResponseEntity;
+import java.util.List;
+
+import org.jeavio.meetin.backend.dto.RoomDetails;
 
 public interface RoomService {
 
-	ResponseEntity<?> fetchRooms();
+	public List<RoomDetails> fetchRooms();
 
+	public void addRoom(RoomDetails room);
+	
+	public void removeRoom(String roomName);
+	
+	public void modifyRoom(RoomDetails modifiedRoomDetails);
+
+	public boolean existsByRoomName(String roomName);
+	
+	public boolean existsByRoomId(Integer roomId);
 }

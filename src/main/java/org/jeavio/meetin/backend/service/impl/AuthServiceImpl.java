@@ -1,12 +1,10 @@
 package org.jeavio.meetin.backend.service.impl;
 
-import org.jeavio.meetin.backend.dto.JwtAuthenticationResponse;
+
 import org.jeavio.meetin.backend.dto.LoginRequest;
 import org.jeavio.meetin.backend.security.JwtTokenProvider;
 import org.jeavio.meetin.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,7 +21,7 @@ public class AuthServiceImpl implements AuthService {
 	JwtTokenProvider tokenProvider;
 	
 	@Override
-	public ResponseEntity<?> verifyUser(LoginRequest loginRequest){
+	public String verifyUser(LoginRequest loginRequest){
 		 Authentication authentication = authenticationManager.authenticate(
 	                new UsernamePasswordAuthenticationToken(
 	                        loginRequest.getUsername(),
@@ -35,8 +33,6 @@ public class AuthServiceImpl implements AuthService {
 
 	        String jwtToken = tokenProvider.generateToken(authentication);
 
-	        ResponseEntity<Object> response = ResponseEntity.status(HttpStatus.OK).body(new JwtAuthenticationResponse(jwtToken));
-
-			return response;
+			return jwtToken;
 	}
 }

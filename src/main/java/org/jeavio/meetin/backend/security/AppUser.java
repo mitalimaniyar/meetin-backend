@@ -17,7 +17,7 @@ public class AppUser implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
 	private final Integer id;
-	private final String userId;
+	private final String empId;
 	private final String name;
 	private final String username;
 	private final String password;
@@ -27,7 +27,7 @@ public class AppUser implements UserDetails {
 	public AppUser(Integer id,String userId, String firstname, String lastname, String username, String password, String email,
 			Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
-		this.userId=userId;
+		this.empId=userId;
 		this.username = username;
 		this.email = email;
 		this.password = password;
@@ -71,11 +71,11 @@ public class AppUser implements UserDetails {
 	public Integer getId() {
 		return id;
 	}
-
-	public String getUserId() {
-		return userId;
-	}
 	
+	public String getEmpId() {
+		return empId;
+	}
+
 	public String getName() {
 		return name;
 	}

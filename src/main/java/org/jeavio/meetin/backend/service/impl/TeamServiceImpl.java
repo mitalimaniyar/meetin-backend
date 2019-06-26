@@ -1,5 +1,6 @@
 package org.jeavio.meetin.backend.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jeavio.meetin.backend.dao.TeamRepository;
@@ -18,39 +19,46 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TeamServiceImpl implements TeamService {
-	
+
 	@Autowired
 	UserTeamRoleRepository userTeamRoleRepository;
-	
+
 	@Autowired
 	TeamRepository teamRepository;
-		
+
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	RoleService roleService;
-	
+
 	@Override
 	public List<TeamDetails> find() {
-		List<TeamDetails> teams=teamRepository.findAllTeams();
-		for(TeamDetails team:teams) {
-			Integer teamId=team.getTeamId();
+		List<TeamDetails> teams = teamRepository.findAllTeams();
+		for (TeamDetails team : teams) {
+			Integer teamId = team.getTeamId();
 			team.setTeamAdmins(userTeamRoleRepository.findTeamAdminsByTeamId(teamId));
-			team.setTeamMembers(userTeamRoleRepository.findMembersByTeamId(teamId));	
+			team.setTeamMembers(userTeamRoleRepository.findMembersByTeamId(teamId));
 			team.setIsAdmin(false);
 		}
 		return teams;
 	}
-	
+
 	@Override
 	public List<TeamDetails> find(String empId) {
-		Integer userId=userService.findIdByEmpId(empId);
-		List<TeamDetails> teams=userTeamRoleRepository.findTeamsByUserId(userId);
-		for(TeamDetails team:teams) {
-			Integer teamId=team.getTeamId();
+		if (!userService.existsByEmpId(empId))
+			return new ArrayList<>();
+
+		Integer userId = userService.findIdByEmpId(empId);
+		if(!userService.existsById(userId)) {
+			return new ArrayList<>();
+		}
+		List<TeamDetails> teams = userTeamRoleRepository.findTeamsByUserId(userId);
+
+		for (TeamDetails team : teams) {
+			Integer teamId = team.getTeamId();
 			team.setTeamAdmins(userTeamRoleRepository.findTeamAdminsByTeamId(teamId));
-			team.setTeamMembers(userTeamRoleRepository.findMembersByTeamId(teamId));	
+			team.setTeamMembers(userTeamRoleRepository.findMembersByTeamId(teamId));
 			team.setIsAdmin(userTeamRoleRepository.isUserTeamAdmin(userId, teamId));
 		}
 		return teams;
@@ -58,29 +66,92 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public List<UserInfo> findNonTeamMembers(Integer teamId) {
+		if(!existsByTeamId(teamId))
+			return new ArrayList<>();
 		return userTeamRoleRepository.finNonTeamMembers(teamId);
 	}
-	
+
 	@Override
 	public Team getTeamFromId(Integer teamId) {
-		Team team=teamRepository.findById(teamId).orElse(new Team("No-Team"));
+		if(!existsByTeamId(teamId))
+			return null;
+		Team team = teamRepository.findById(teamId).get();
 		return team;
 	}
-	
+
 	@Override
-	public void addTeamMembers(Integer teamId,List<String> empIds) {
-	Team team=getTeamFromId(teamId);
-	Role role=roleService.getTeamMemberRole();
-	for(String empId:empIds) {
-		User user=userService.findUserByEmpId(empId);
-		userTeamRoleRepository.save(new UserTeamRole(user, team, role));
+	public void addTeamMembers(Integer teamId, List<String> empIds) {
+		if(!existsByTeamId(teamId))
+			return;
+		Team team = getTeamFromId(teamId);
+		Role role = roleService.getTeamMemberRole();
+		for (String empId : empIds) {
+			if (team!=null && userService.existsByEmpId(empId)) {
+				User user = userService.findByEmpId(empId);
+				if (user!=null && !userTeamRoleRepository.existsByUserAndTeamAndRole(user, team, role))
+					userTeamRoleRepository.save(new UserTeamRole(user, team, role));
+			}
+		}
 	}
-}
-	
+
 	@Override
-	public void removeTeamMember(Integer teamId,String empId) {
-		Integer userId=userService.findIdByEmpId(empId);
+	public void removeTeamMember(Integer teamId, String empId) {
+		if(!existsByTeamId(teamId) || !userService.existsByEmpId(empId))
+			return;
+		Integer userId = userService.findIdByEmpId(empId);
 		userTeamRoleRepository.deleteByUserId(userId, teamId);
 	}
-	
+
+	@Override
+	public List<UserInfo> findTeamMembers(Integer teamId) {
+		if(!existsByTeamId(teamId))
+			return new ArrayList<>();;
+		return userTeamRoleRepository.findTeamMembers(teamId);
+	}
+
+	@Override
+	public boolean existsByTeamName(String teamName) {
+		return teamRepository.existsByTeamName(teamName);
+	}
+
+	@Override
+	public boolean existsByTeamId(Integer teamId) {
+		return teamRepository.existsById(teamId);
+	}
+
+	@Override
+	public void addTeam(String teamName) {
+		if (!existsByTeamName(teamName)) {
+			Team team = new Team(teamName);
+			teamRepository.save(team);
+		}
+	}
+
+	@Override
+	public void removeTeam(String teamName) {
+		if (existsByTeamName(teamName))
+			teamRepository.deleteByTeamName(teamName);
+	}
+
+	@Override
+	public void updateTeamName(Integer teamId, String newTeamName) {
+		if (existsByTeamId(teamId) && !existsByTeamName(newTeamName)) {
+			Team team = teamRepository.findById(teamId).get();
+			team.setTeamName(newTeamName);
+			teamRepository.save(team);
+		}
+	}
+
+	@Override
+	public List<UserInfo> findTeamMembers(String teamName) {
+		if(!existsByTeamName(teamName))
+			return new ArrayList<>();
+		return userTeamRoleRepository.findTeamMembersByTeamName(teamName);
+	}
+
+	@Override
+	public List<String> getTeamNames() {
+		return teamRepository.getTeamNames();
+	}
+
 }

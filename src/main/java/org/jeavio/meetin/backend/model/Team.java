@@ -30,7 +30,7 @@ public class Team extends UserDateAudit{
 	private Integer id;
 	
 	@NonNull
-	@Column(name = "team_name")
+	@Column(name = "team_name",unique = true)
 	@Size(max = 50)
 	private String teamName;
 	

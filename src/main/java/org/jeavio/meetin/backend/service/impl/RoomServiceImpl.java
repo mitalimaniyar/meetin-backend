@@ -3,12 +3,10 @@ package org.jeavio.meetin.backend.service.impl;
 import java.util.List;
 
 import org.jeavio.meetin.backend.dao.RoomRepository;
-import org.jeavio.meetin.backend.dto.ApiResponse;
 import org.jeavio.meetin.backend.dto.RoomDetails;
+import org.jeavio.meetin.backend.model.Room;
 import org.jeavio.meetin.backend.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,17 +16,53 @@ public class RoomServiceImpl implements RoomService {
 	RoomRepository roomRepository;
 	
 	@Override
-	public ResponseEntity<?> fetchRooms(){
+	public List<RoomDetails> fetchRooms(){
 		
 		List<RoomDetails> rooms=roomRepository.getRooms();
-		
-		ResponseEntity<Object> response;
-		
-		if(rooms.isEmpty())
-			response=ResponseEntity.status(503).body(new ApiResponse(503,"Service Unavailable. No Rooms Found for Selection."));
-		else
-			response= ResponseEntity.status(HttpStatus.OK).body(rooms);
+		return rooms;
+	}
 
-		return response;
+	@Override
+	public void addRoom(RoomDetails roomDetails) {
+		if(existsByRoomName(roomDetails.getName()))
+			return;
+		String specifications = null;
+		if (roomDetails.getSpecifications() != null && !roomDetails.getSpecifications().isEmpty()) {
+			specifications = String.join(",", roomDetails.getSpecifications());
+		}
+		Room room=new Room(roomDetails.getName(), roomDetails.getCapacity(),specifications);
+		roomRepository.save(room);
+	}
+
+	@Override
+	public void removeRoom(String roomName) {
+		if(existsByRoomName(roomName))
+			roomRepository.deleteByRoomName(roomName);
+	}
+
+	@Override
+	public void modifyRoom(RoomDetails modifiedRoomDetails) {
+		if(existsByRoomName(modifiedRoomDetails.getName()) || !existsByRoomId(modifiedRoomDetails.getRoomId()))
+			return;
+		Room room = roomRepository.findById(modifiedRoomDetails.getRoomId()).get();
+		room.setRoomName(modifiedRoomDetails.getName());
+		room.setCapacity(modifiedRoomDetails.getCapacity());
+		String specifications=null;
+		if (modifiedRoomDetails.getSpecifications() != null && !modifiedRoomDetails.getSpecifications().isEmpty()) {
+			specifications = String.join(",", modifiedRoomDetails.getSpecifications());
+		}
+		room.setSpecifications(specifications);
+		
+		roomRepository.save(room);
+	}
+
+	@Override
+	public boolean existsByRoomName(String roomName) {
+		return roomRepository.existsByRoomName(roomName);
+	}
+
+	@Override
+	public boolean existsByRoomId(Integer roomId) {
+		return roomRepository.existsById(roomId);
 	}
 }
