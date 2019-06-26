@@ -1,15 +1,17 @@
 package org.jeavio.meetin.backend.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 import org.jeavio.meetin.backend.dto.ApiResponse;
 import org.jeavio.meetin.backend.dto.EventDTO;
+import org.jeavio.meetin.backend.dto.EventDetails;
 import org.jeavio.meetin.backend.security.AppUser;
 import org.jeavio.meetin.backend.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,13 +27,14 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET,path = "/api/events")
 	public ResponseEntity<?> getBookings(){
 		ResponseEntity<?> response = null;
-		
+		response = ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventGroupByRoomName());
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET,path = "/api/events/{roomName}")
-	public ResponseEntity<?> getRoomBookings(){
+	public ResponseEntity<?> getRoomBookings(@PathParam("roomName") String roomName){
 		ResponseEntity<?> response = null;
+		response = ResponseEntity.status(HttpStatus.OK).body(eventService.findEventByRoomName(roomName));
 		return response;
 	}
 	
@@ -43,12 +46,12 @@ public class EventController {
 			return response;
 		}
 		String empId = ((AppUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
-////		 = eventService.getPastEvents(empId);
-//		if(status) {
-//			response = ResponseEntity.status(HttpStatus.OK).
-//		}else {
-//			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"User Not Found"));
-//		}
+		List<EventDetails> pastEvents = eventService.getPastEvents(empId);
+		if(!pastEvents.isEmpty()) {
+			response = ResponseEntity.status(HttpStatus.OK).body(pastEvents);
+		}else {
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"Not Found"));
+		}
 		return response;
 	}
 	
@@ -60,12 +63,12 @@ public class EventController {
 			return response;
 		}
 		String empId = ((AppUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
-//		boolean status = eventService.getFutureEvents(empId);
-//		if(status) {
-//			
-//		}else {
-//			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"User Not Found"));
-//		}
+		List<EventDetails> futureEvents = eventService.getPastEvents(empId);
+		if(!futureEvents.isEmpty()) {
+			response = ResponseEntity.status(HttpStatus.OK).body(futureEvents);
+		}else {
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"Not Found"));
+		}
 		return response;
 	}
 	
@@ -98,6 +101,10 @@ public class EventController {
 		String eventId=body.get("eventId");
 		if(!eventService.existsByEventId(eventId))
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"Event not found."));
+		else {
+			eventService.cancelEvent(eventId);
+			response = ResponseEntity.status(HttpStatus.OK).body("Success");
+		}
 		return response;
 	}
 	

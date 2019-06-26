@@ -72,16 +72,4 @@ public class AdminServiceImpl implements AdminService {
 		}
 	}
 	
-	@Override
-	public void addUser() {
-
-	}
- 
-	@Override
-	public void removeUser(String empId) {
-		Integer userId = userService.findIdByEmpId(empId);
-		userRepository.deleteById(userId);
-	}
-
-	
 }

@@ -1,5 +1,6 @@
 package org.jeavio.meetin.backend.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jeavio.meetin.backend.dao.RoomRepository;
@@ -64,5 +65,12 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public boolean existsByRoomId(Integer roomId) {
 		return roomRepository.existsById(roomId);
+	}
+
+	@Override
+	public List<String> getRoomNames() {
+		List<String> rooms = new ArrayList<String>();
+		roomRepository.getRooms().stream().forEach( room -> rooms.add(room.getName()));
+		return rooms;
 	}
 }

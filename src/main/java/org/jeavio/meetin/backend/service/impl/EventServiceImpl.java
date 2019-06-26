@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jeavio.meetin.backend.dao.EventRepository;
 import org.jeavio.meetin.backend.dto.EventDTO;
@@ -63,41 +65,15 @@ public class EventServiceImpl implements EventService {
 		if (start == null || end == null)
 			return false;
 
-		UserInfo organizer = userService.findProfileByEmpId(empId);
-
-		List<MemberInfo> participants = new ArrayList<MemberInfo>();
-		if (!(newEvent.getTeams()).isEmpty()) {
-			for (String teamName : newEvent.getTeams()) {
-				if (teamService.existsByTeamName(teamName)) {
-					List<UserInfo> users = teamService.findTeamMembers(teamName);
-					for (UserInfo user : users) {
-						MemberInfo member = new MemberInfo(user, teamName);
-						if (!participants.contains(member))
-							participants.add(member);
-						
-							
-					}
-				}
-			}
-		}
-		if (!(newEvent.getMembers()).isEmpty()) {
-			for (String memberEmpId : newEvent.getMembers()) {
-				if (userService.existsByEmpId(memberEmpId)) {
-					UserInfo user = userService.findProfileByEmpId(memberEmpId);
-					MemberInfo member = new MemberInfo(user, null);
-					if (!participants.contains(member))
-						participants.add(member);
-				}
-			}
-		}
+		UserInfo organizer = getOrganizer(empId);
+		List<MemberInfo> participants = getParticipants(newEvent, empId);
 		String eventId = roomName + (new SimpleDateFormat("yyyyMMddHHmm").format(start));
-
 		String repeat = newEvent.getRepeat();
 		Event event = null;
 
 		event = new Event(eventId, title, agenda, roomName, start, end, organizer, participants);
 		eventRepository.save(event);
-		notificationService.notifyAll(participants, "create", repeat);
+		notificationService.notifyAll(event, "create", repeat);
 
 		int frequency = 0;
 
@@ -124,6 +100,40 @@ public class EventServiceImpl implements EventService {
 			frequency--;
 		}
 		return true;
+	}
+
+	private UserInfo getOrganizer(String empId) {
+		return userService.findProfileByEmpId(empId);
+	}
+
+	private List<MemberInfo> getParticipants(EventDTO newEvent, String empId) {
+		
+		List<MemberInfo> participants = new ArrayList<MemberInfo>();
+		UserInfo organizer = getOrganizer(empId);
+		participants.add(new MemberInfo(organizer, "organizer"));
+		if (!(newEvent.getTeams()).isEmpty()) {
+			for (String teamName : newEvent.getTeams()) {
+				if (teamService.existsByTeamName(teamName)) {
+					List<UserInfo> users = teamService.findTeamMembers(teamName);
+					for (UserInfo user : users) {
+						MemberInfo member = new MemberInfo(user, teamName);
+						if (!participants.contains(member))
+							participants.add(member);
+					}
+				}
+			}
+		}
+		if (!(newEvent.getMembers()).isEmpty()) {
+			for (String memberEmpId : newEvent.getMembers()) {
+				if (userService.existsByEmpId(memberEmpId)) {
+					UserInfo user = userService.findProfileByEmpId(memberEmpId);
+					MemberInfo member = new MemberInfo(user, null);
+					if (!participants.contains(member))
+						participants.add(member);
+				}
+			}
+		}
+		return participants;
 	}
 
 	private Date getNextDate(Date oldDate, String repeat) {
@@ -181,7 +191,6 @@ public class EventServiceImpl implements EventService {
 		return eventRepository.existsByEventId(eventId);
 	}
 
-	
 	@Override
 	public List<EventDetails> findEventByRoomName(String roomName) {
 		return eventRepository.findEventDetailsByRoomName(roomName);
@@ -190,6 +199,48 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public List<EventDetails> findEventByEmpId(String empId) {
 		return eventRepository.findEventDetailsByEmpId(empId);
+	}
+
+	@Override
+	public List<Event> getAllBookings() {
+		return eventRepository.findAll();
+	}
+
+	@Override
+	public Map<String, List<EventDetails>> getAllEventGroupByRoomName() {
+		List<String> rooms = roomService.getRoomNames();
+		Map<String, List<EventDetails>> bookings = new LinkedHashMap<String, List<EventDetails>>();
+		for (String room : rooms) {
+			bookings.put(room, findEventByRoomName(room));
+		}
+		return bookings;
+	}
+
+	@Override
+	public List<EventDetails> getPastEvents(String empId) {
+		if(!userService.existsByEmpId(empId))
+			return new ArrayList<EventDetails>();
+		return eventRepository.findPastEvents(empId,new Date());
+	}
+
+	@Override
+	public List<EventDetails> getFutureEvents(String empId) {
+		if(!userService.existsByEmpId(empId))
+			return new ArrayList<EventDetails>();
+		return eventRepository.findFutureEvents(empId,new Date());
+	}
+
+	@Override
+	public void cancelEvent(String eventId) {
+		if(!existsByEventId(eventId))
+			return;
+		notificationService.notifyAll(findByEventId(eventId),"cancel",null);
+		eventRepository.deleteByEventId(eventId);
+	}
+
+	@Override
+	public Event findByEventId(String eventId) {
+		return eventRepository.findByEventId(eventId);
 	}
 
 }

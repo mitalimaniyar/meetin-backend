@@ -6,8 +6,4 @@ public interface AdminService {
 
 	void promoteSuperAdmin(String empId);
 
-	void addUser();
-
-	void removeUser(String empId);
-
 }
