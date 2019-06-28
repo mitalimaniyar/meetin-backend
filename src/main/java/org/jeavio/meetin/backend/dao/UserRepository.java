@@ -37,8 +37,9 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	void deleteByEmpId(String empId);
 
 	boolean existsByUsername(String username);
-    
-//    Change pwd query pending
 
+	@Query("SELECT new org.jeavio.meetin.backend.dto.UserInfo(u.id,u.empId,u.firstName,u.lastName,u.email) FROM User u")
+	List<UserInfo> findAllUsers();
+    
        
 }

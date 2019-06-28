@@ -19,4 +19,6 @@ public interface RoomService {
 	public boolean existsByRoomId(Integer roomId);
 
 	public List<String> getRoomNames();
+
+	public String getRoomSpecifications(String roomName);
 }

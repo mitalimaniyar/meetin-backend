@@ -4,6 +4,6 @@ import org.jeavio.meetin.backend.dto.LoginRequest;
 
 public interface AuthService {
 
-	String verifyUser(LoginRequest loginRequest);
+	public String verifyUser(LoginRequest loginRequest);
 
 }

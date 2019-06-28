@@ -1,28 +1,35 @@
 package org.jeavio.meetin.backend.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jeavio.meetin.backend.dto.UserDTO;
 import org.jeavio.meetin.backend.dto.UserInfo;
 import org.jeavio.meetin.backend.model.User;
 
 public interface UserService {
 
-	User findByEmpId(String empId);
+	public User findByEmpId(String empId);
 
-	User findUserById(Integer id);
+	public User findUserById(Integer id);
 
-	Integer findIdByEmpId(String empId);
+	public Integer findIdByEmpId(String empId);
 
-	boolean existsByEmpId(String empId);
+	public boolean existsByEmpId(String empId);
 
-	UserInfo findProfileByEmpId(String empId);
+	public UserInfo findProfileByEmpId(String empId);
 
-	boolean existsById(Integer userId);
+	public boolean existsById(Integer userId);
 
-	void addUser(UserDTO user);
+	public void addUser(UserDTO user);
 
-	void removeUser(String empId);
+	public void removeUser(String empId);
 
-	void modifyUserDetails(UserDTO modifiedUser);
+	public void modifyUserDetails(UserDTO modifiedUser);
 
-	boolean existsByUsername(String modifiedUsername);
+	public boolean existsByUsername(String modifiedUsername);
+
+	public int changePassword(String empId, Map<String, String> body);
+
+	public List<UserInfo> findAll();
 }

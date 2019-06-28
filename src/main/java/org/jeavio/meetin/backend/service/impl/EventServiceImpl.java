@@ -9,12 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeavio.meetin.backend.dao.EventRepository;
+import org.jeavio.meetin.backend.api.EventManagerClient;
 import org.jeavio.meetin.backend.dto.EventDTO;
 import org.jeavio.meetin.backend.dto.EventDetails;
 import org.jeavio.meetin.backend.dto.MemberInfo;
 import org.jeavio.meetin.backend.dto.UserInfo;
-import org.jeavio.meetin.backend.model.Event;
 import org.jeavio.meetin.backend.service.EventService;
 import org.jeavio.meetin.backend.service.NotificationService;
 import org.jeavio.meetin.backend.service.RoomService;
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class EventServiceImpl implements EventService {
 
 	@Autowired
-	EventRepository eventRepository;
+	EventManagerClient eventManager;
 
 	@Autowired
 	TeamService teamService;
@@ -60,6 +59,7 @@ public class EventServiceImpl implements EventService {
 		}
 		if (!roomService.existsByRoomName(roomName))
 			return false;
+		String roomSpecifications = roomService.getRoomSpecifications(roomName);
 		if (!checkSlotAvailability(roomName, start, end))
 			return false;
 		if (start == null || end == null)
@@ -67,13 +67,12 @@ public class EventServiceImpl implements EventService {
 
 		UserInfo organizer = getOrganizer(empId);
 		List<MemberInfo> participants = getParticipants(newEvent, empId);
-		String eventId = roomName + (new SimpleDateFormat("yyyyMMddHHmm").format(start));
 		String repeat = newEvent.getRepeat();
-		Event event = null;
+		EventDetails event = null;
 
-		event = new Event(eventId, title, agenda, roomName, start, end, organizer, participants);
-		eventRepository.save(event);
-		notificationService.notifyAll(event, "create", repeat);
+		event = new EventDetails(title, agenda, roomName, roomSpecifications, start, end, organizer, participants);
+		boolean status = eventManager.addEvent(event);
+//		notificationService.notifyAll(event, "create", repeat);
 
 		int frequency = 0;
 
@@ -91,9 +90,9 @@ public class EventServiceImpl implements EventService {
 			Date newStart = getNextDate(oldStart, repeat);
 			Date newEnd = getNextDate(oldEnd, repeat);
 			if (checkSlotAvailability(roomName, newStart, newEnd)) {
-				eventId = roomName + (new SimpleDateFormat("yyyyMMddHHmm").format(newStart));
-				event = new Event(eventId, title, agenda, roomName, newStart, newEnd, organizer, participants);
-				eventRepository.save(event);
+				event = new EventDetails(title, agenda, roomName, roomSpecifications, newStart, newEnd, organizer,
+						participants);
+				eventManager.addEvent(event);
 			}
 			oldStart = newStart;
 			oldEnd = newEnd;
@@ -107,17 +106,15 @@ public class EventServiceImpl implements EventService {
 	}
 
 	private List<MemberInfo> getParticipants(EventDTO newEvent, String empId) {
-		
+
 		List<MemberInfo> participants = new ArrayList<MemberInfo>();
-		UserInfo organizer = getOrganizer(empId);
-		participants.add(new MemberInfo(organizer, "organizer"));
 		if (!(newEvent.getTeams()).isEmpty()) {
 			for (String teamName : newEvent.getTeams()) {
 				if (teamService.existsByTeamName(teamName)) {
 					List<UserInfo> users = teamService.findTeamMembers(teamName);
 					for (UserInfo user : users) {
 						MemberInfo member = new MemberInfo(user, teamName);
-						if (!participants.contains(member))
+						if (!empId.equals(member.getEmpId()) && !participants.contains(member))
 							participants.add(member);
 					}
 				}
@@ -149,98 +146,69 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public boolean checkSlotAvailability(String roomName, Date start, Date end) {
-		List<Event> events = eventRepository.findAllByRoomName(roomName);
-		for (Event event : events) {
-			Date startDate = event.getStart();
-			Date endDate = event.getEnd();
-
-			boolean condition1 = (start.before(startDate) || start.equals(startDate))
-					&& (end.after(startDate) || end.equals(startDate));
-			boolean condition2 = (start.before(endDate) || start.equals(endDate))
-					&& (end.after(endDate) || end.equals(endDate));
-			boolean condition3 = (start.after(startDate) || start.equals(startDate))
-					&& (end.before(endDate) || end.equals(endDate));
-			if (condition1 || condition2 || condition3)
-				return false;
-		}
-
-		return true;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		return checkSlotAvailability(roomName, format.format(start), format.format(end));
 	}
 
 	@Override
 	public boolean checkSlotAvailability(String roomName, String start, String end) {
-		if (start == null || end == null)
-			return false;
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		Date requestedStartDate = null;
-		Date requestedEndDate = null;
-		try {
-			requestedStartDate = format.parse(start);
-			requestedEndDate = format.parse(end);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		if (requestedStartDate == null || requestedEndDate == null)
-			return false;
-		else
-			return checkSlotAvailability(roomName, requestedStartDate, requestedEndDate);
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("roomName", roomName);
+		requestBody.put("start", start);
+		requestBody.put("end", end);
+		return eventManager.checkSlotAvailability(requestBody);
 	}
 
 	@Override
-	public boolean existsByEventId(String eventId) {
-		return eventRepository.existsByEventId(eventId);
+	public boolean existsById(String eventId) {
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("id",eventId);
+		return eventManager.existEvent(requestBody);
 	}
 
 	@Override
 	public List<EventDetails> findEventByRoomName(String roomName) {
-		return eventRepository.findEventDetailsByRoomName(roomName);
+		return eventManager.getEventByRoomName(roomName);
 	}
 
 	@Override
 	public List<EventDetails> findEventByEmpId(String empId) {
-		return eventRepository.findEventDetailsByEmpId(empId);
-	}
-
-	@Override
-	public List<Event> getAllBookings() {
-		return eventRepository.findAll();
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("empId", empId);
+		return eventManager.getUserEvents(requestBody);
 	}
 
 	@Override
 	public Map<String, List<EventDetails>> getAllEventGroupByRoomName() {
 		List<String> rooms = roomService.getRoomNames();
-		Map<String, List<EventDetails>> bookings = new LinkedHashMap<String, List<EventDetails>>();
-		for (String room : rooms) {
-			bookings.put(room, findEventByRoomName(room));
-		}
-		return bookings;
+		Map<String, List<String>> roomNames = new LinkedHashMap<String, List<String>>();
+		roomNames.put("roomNames", rooms);
+		return eventManager.getEventsByRooms(roomNames);
 	}
 
 	@Override
 	public List<EventDetails> getPastEvents(String empId) {
-		if(!userService.existsByEmpId(empId))
+		if (!userService.existsByEmpId(empId))
 			return new ArrayList<EventDetails>();
-		return eventRepository.findPastEvents(empId,new Date());
+		Map<String,String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("empId", empId);
+		return eventManager.getUserPastEvents(requestBody);
 	}
 
 	@Override
 	public List<EventDetails> getFutureEvents(String empId) {
-		if(!userService.existsByEmpId(empId))
+		if (!userService.existsByEmpId(empId))
 			return new ArrayList<EventDetails>();
-		return eventRepository.findFutureEvents(empId,new Date());
+		Map<String,String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("empId", empId);
+		return eventManager.getUserFutureEvents(requestBody);
 	}
 
 	@Override
-	public void cancelEvent(String eventId) {
-		if(!existsByEventId(eventId))
-			return;
-		notificationService.notifyAll(findByEventId(eventId),"cancel",null);
-		eventRepository.deleteByEventId(eventId);
-	}
-
-	@Override
-	public Event findByEventId(String eventId) {
-		return eventRepository.findByEventId(eventId);
+	public void cancelEvent(String id) {
+		Map<String,String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("id",id);
+		eventManager.cancelEvent(requestBody);
 	}
 
 }

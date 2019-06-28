@@ -6,10 +6,11 @@ import java.util.List;
 
 public class EventDetails {
 
-	private String eventId;
+	private String id;
 	private String title;
 	private String agenda;
 	private String roomName;
+	private String roomSpecifications;
 	private Date start;
 	private Date end;
 	private UserInfo organizer;
@@ -18,24 +19,38 @@ public class EventDetails {
 	public EventDetails() {
 	}
 
-	public EventDetails(String eventId, String title, String agenda, String roomName, Date start, Date end,
+	public EventDetails(String title, String agenda, String roomName, String roomSpecifications, Date start, Date end,
 			UserInfo organizer, List<MemberInfo> members) {
-		this.eventId = eventId;
+		super();
 		this.title = title;
 		this.agenda = agenda;
 		this.roomName = roomName;
+		this.roomSpecifications = roomSpecifications;
+		this.start = start;
+		this.end = end;
+		this.organizer = organizer;
+		this.members = members;
+	}
+
+	public EventDetails(String id, String title, String agenda, String roomName, String roomSpecifications,
+			Date start, Date end, UserInfo organizer, List<MemberInfo> members) {
+		this.id = id;
+		this.title = title;
+		this.agenda = agenda;
+		this.roomName = roomName;
+		this.roomSpecifications = roomSpecifications;
 		this.organizer = organizer;
 		this.members = members;
 		this.start = start;
-		this.end =	end;
+		this.end = end;
 	}
 
-	public String getEventId() {
-		return eventId;
+	public String getId() {
+		return id;
 	}
 
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
+	public void setId(String eventId) {
+		this.id = eventId;
 	}
 
 	public String getTitle() {
@@ -56,6 +71,14 @@ public class EventDetails {
 
 	public String getRoomName() {
 		return roomName;
+	}
+
+	public String getRoomSpecifications() {
+		return roomSpecifications;
+	}
+
+	public void setRoomSpecifications(String roomSpecifications) {
+		this.roomSpecifications = roomSpecifications;
 	}
 
 	public void setRoomName(String roomName) {
@@ -79,7 +102,7 @@ public class EventDetails {
 	public void setEnd(Date end) {
 		this.end = end;
 	}
-	
+
 	public UserInfo getOrganizer() {
 		return organizer;
 	}

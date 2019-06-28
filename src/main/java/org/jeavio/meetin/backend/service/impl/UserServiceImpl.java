@@ -1,5 +1,8 @@
 package org.jeavio.meetin.backend.service.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jeavio.meetin.backend.dao.UserRepository;
 import org.jeavio.meetin.backend.dto.UserDTO;
 import org.jeavio.meetin.backend.dto.UserInfo;
@@ -100,5 +103,28 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean existsByUsername(String username) {
 		return userRepository.existsByUsername(username);
+	}
+
+	@Override
+	public int changePassword(String empId,Map<String, String> body) {
+		if(!existsByEmpId(empId))
+			return 403;
+		String currentPassword = body.get("currentPassword");
+		String newPassword = body.get("newPassword");
+		String encodedOldPwd = findByEmpId(empId).getPassword();
+		if(!encodedOldPwd.equals(passwordEncoder.encode(currentPassword)))
+			return 403;
+		if(currentPassword.equals(newPassword))
+			return 400;
+		String encodedNewPwd = passwordEncoder.encode(newPassword);
+		User user = findByEmpId(empId);
+		user.setPassword(encodedNewPwd);
+		userRepository.save(user);
+		return 200;
+	}
+
+	@Override
+	public List<UserInfo> findAll() {
+		return userRepository.findAllUsers();
 	}
 }

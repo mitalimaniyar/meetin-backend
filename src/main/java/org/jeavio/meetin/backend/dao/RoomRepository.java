@@ -22,4 +22,6 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
 	@Modifying
 	@Transactional
 	void deleteByRoomName(String roomName);
+
+	Room findByRoomName(String roomName);
 }

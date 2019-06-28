@@ -8,31 +8,31 @@ import org.jeavio.meetin.backend.model.Team;
 
 public interface TeamService {
 
-	List<TeamDetails> find();
+	public List<TeamDetails> find();
 
-	List<TeamDetails> find(String empId);
+	public List<TeamDetails> find(String empId);
 
-	List<UserInfo> findNonTeamMembers(Integer teamId);
+	public List<UserInfo> findNonTeamMembers(Integer teamId);
 
-	Team getTeamFromId(Integer teamId);
+	public Team getTeamFromId(Integer teamId);
 
-	void addTeamMembers(Integer teamId, List<String> empIds);
+	public void addTeamMembers(Integer teamId, List<String> empIds);
 
-	void removeTeamMember(Integer teamId, String empId);
+	public void removeTeamMember(Integer teamId, String empId);
 
-	List<UserInfo> findTeamMembers(Integer teamId);
+	public List<UserInfo> findTeamMembers(Integer teamId);
 
-	List<UserInfo> findTeamMembers(String teamName);
+	public List<UserInfo> findTeamMembers(String teamName);
 	
-	boolean existsByTeamName(String teamName);
+	public boolean existsByTeamName(String teamName);
 	
-	boolean existsByTeamId(Integer teamId);
+	public boolean existsByTeamId(Integer teamId);
 	
-	void addTeam(String teamName);
+	public void addTeam(String teamName);
 	
-	void removeTeam(String teamName);
+	public void removeTeam(String teamName);
 	
-	void updateTeamName(Integer teamId,String newTeamName);
+	public void updateTeamName(Integer teamId,String newTeamName);
 
-	List<String> getTeamNames();
+	public List<String> getTeamNames();
 }

@@ -4,10 +4,10 @@ import org.jeavio.meetin.backend.model.Role;
 
 public interface RoleService {
 
-	Role getSuperAdminRole();
+	public Role getSuperAdminRole();
 
-	Role getTeamAdminRole();
+	public Role getTeamAdminRole();
 
-	Role getTeamMemberRole();
+	public Role getTeamMemberRole();
 
 }

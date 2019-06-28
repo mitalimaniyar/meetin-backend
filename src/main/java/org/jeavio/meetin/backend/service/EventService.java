@@ -6,31 +6,26 @@ import java.util.Map;
 
 import org.jeavio.meetin.backend.dto.EventDTO;
 import org.jeavio.meetin.backend.dto.EventDetails;
-import org.jeavio.meetin.backend.model.Event;
 
 public interface EventService {
 
-	boolean addEvent(EventDTO newEvent, String empId);
+	public boolean addEvent(EventDTO newEvent, String empId);
 
-	boolean checkSlotAvailability(String roomName, Date start, Date end);
+	public boolean checkSlotAvailability(String roomName, Date start, Date end);
 
-	boolean checkSlotAvailability(String roomName, String start, String end);
+	public boolean checkSlotAvailability(String roomName, String start, String end);
 
-	boolean existsByEventId(String eventId);
+	public List<EventDetails> findEventByRoomName(String string);
 
-	List<EventDetails> findEventByRoomName(String string);
-	
-	List<EventDetails> findEventByEmpId(String empId);
+	public List<EventDetails> findEventByEmpId(String empId);
 
-	List<Event> getAllBookings();
+	public Map<String, List<EventDetails>> getAllEventGroupByRoomName();
 
-	Map<String,List<EventDetails>> getAllEventGroupByRoomName();
-
-	List<EventDetails> getPastEvents(String empId);
+	public List<EventDetails> getPastEvents(String empId);
 
 	public List<EventDetails> getFutureEvents(String empId);
 
-	void cancelEvent(String eventId);
-	
-	Event findByEventId(String eventId);
+	public void cancelEvent(String id);
+
+	boolean existsById(String eventId);
 }

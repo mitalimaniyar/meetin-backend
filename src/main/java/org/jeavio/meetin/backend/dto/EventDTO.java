@@ -4,7 +4,7 @@ import java.util.List;
 
 public class EventDTO {
 
-	private String eventId;
+	private String id;
 	private String roomName;
 	private String title;
 	private String agenda;
@@ -16,12 +16,12 @@ public class EventDTO {
 	
 	public EventDTO() { }
 	
-	public String getEventId() {
-		return eventId;
+	public String getId() {
+		return id;
 	}
 
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
+	public void setId(String eventId) {
+		this.id = eventId;
 	}
 
 	public String getRoomName() {

@@ -26,7 +26,7 @@ public class RoomsController {
 	public ResponseEntity<?> getAllRooms() {
 		List<RoomDetails> rooms = roomService.fetchRooms();
 		ResponseEntity<?> response = null;
-		if (rooms.isEmpty() || rooms == null)
+		if ( rooms == null || rooms.isEmpty())
 			response = ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
 					.body(new ApiResponse(503, "Service Unavailable. No Rooms Found for Selection."));
 		else

@@ -17,4 +17,14 @@ public class ApiResponse {
 	public String getMessage() {
 		return message;
 	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	
 }

@@ -73,4 +73,9 @@ public class RoomServiceImpl implements RoomService {
 		roomRepository.getRooms().stream().forEach( room -> rooms.add(room.getName()));
 		return rooms;
 	}
+
+	@Override
+	public String getRoomSpecifications(String roomName) {
+		return roomRepository.findByRoomName(roomName).getSpecifications();
+	}
 }

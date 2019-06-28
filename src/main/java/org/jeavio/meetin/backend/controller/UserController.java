@@ -1,5 +1,6 @@
 package org.jeavio.meetin.backend.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -24,7 +25,7 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
-	@RequestMapping(method = RequestMethod.GET, path = "/api/user/me")
+	@RequestMapping(method = RequestMethod.GET, path = "/api/users/me")
 	public ResponseEntity<?> getProfile() {
 		ResponseEntity<?> response = null;
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -47,22 +48,30 @@ public class UserController {
 
 	}
 
-	@RequestMapping(method = RequestMethod.POST, path = "/api/user")
+	@RequestMapping(method = RequestMethod.GET, path = "/api/users")
+	public ResponseEntity<?> getAllUsers(){
+		ResponseEntity<?> response = null;
+		List<UserInfo> users = userService.findAll();
+		response =  ResponseEntity.status(HttpStatus.OK).body(users);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, path = "/api/users")
 	public ResponseEntity<?> addUser(@Valid @RequestBody UserDTO user) {
 		ResponseEntity<?> response = null;
 		if (!userService.existsByEmpId(user.getEmpId()) && !userService.existsByUsername(user.getUsername())) {
 			userService.addUser(user);
 			response = ResponseEntity.status(HttpStatus.OK).body("User Created");
-			
+
 		} else {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new ApiResponse(500, "User with empId or username already exists."));
-			
+
 		}
 		return response;
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE, path = "/api/user")
+	@RequestMapping(method = RequestMethod.DELETE, path = "/api/users")
 	public ResponseEntity<?> removeUser(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
 		String empId = body.get("empId");
@@ -75,7 +84,7 @@ public class UserController {
 		return response;
 	}
 
-	@RequestMapping(method = RequestMethod.PUT, path = "/api/user")
+	@RequestMapping(method = RequestMethod.PUT, path = "/api/users")
 	public ResponseEntity<?> modifyUser(@Valid @RequestBody UserDTO modifiedUser) {
 		ResponseEntity<?> response = null;
 		Integer userId = modifiedUser.getId();
@@ -89,7 +98,7 @@ public class UserController {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new ApiResponse(500, "Employee with Id already exists."));
 
-		}  else if (!(userService.findUserById(userId).getUsername()).equals(modifiedUsername)
+		} else if (!(userService.findUserById(userId).getUsername()).equals(modifiedUsername)
 				&& userService.existsByUsername(modifiedUsername)) {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new ApiResponse(500, "Username already exists."));
@@ -97,6 +106,29 @@ public class UserController {
 		} else {
 			userService.modifyUserDetails(modifiedUser);
 			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "User details modified."));
+		}
+		return response;
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/api/user/my/changepwd")
+	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body) {
+		ResponseEntity<?> response = null;
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			response = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(new ApiResponse(401, "Authorization Required."));
+		}
+		String empId = ((AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
+		if (!userService.existsByEmpId(empId)) {
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse(500, "Unable to find requested user."));
+		} else {
+			int status = userService.changePassword(empId,body);
+			if (status == 200) {
+				response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Change Password Successful"));
+			}else {
+				response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body(new ApiResponse(500, "Unable to change password."));
+			}
 		}
 		return response;
 	}

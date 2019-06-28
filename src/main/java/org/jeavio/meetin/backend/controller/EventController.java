@@ -38,6 +38,23 @@ public class EventController {
 		return response;
 	}
 	
+	@RequestMapping(method = RequestMethod.GET,path = "/api/events/my")
+	public ResponseEntity<?> userEvents(){
+		ResponseEntity<?> response = null;
+		if(SecurityContextHolder.getContext().getAuthentication() == null) {
+			response = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(401,"Authorization Required."));
+			return response;
+		}
+		String empId = ((AppUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
+		List<EventDetails> events = eventService.findEventByEmpId(empId);
+		if(!events.isEmpty()) {
+			response = ResponseEntity.status(HttpStatus.OK).body(events);
+		}else {
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"Not Found"));
+		}
+		return response;
+	}
+	
 	@RequestMapping(method = RequestMethod.GET,path = "/api/events/my/past")
 	public ResponseEntity<?> pastEvents(){
 		ResponseEntity<?> response = null;
@@ -63,7 +80,7 @@ public class EventController {
 			return response;
 		}
 		String empId = ((AppUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
-		List<EventDetails> futureEvents = eventService.getPastEvents(empId);
+		List<EventDetails> futureEvents = eventService.getFutureEvents(empId);
 		if(!futureEvents.isEmpty()) {
 			response = ResponseEntity.status(HttpStatus.OK).body(futureEvents);
 		}else {
@@ -99,7 +116,7 @@ public class EventController {
 	public ResponseEntity<?> cancelEvent(@RequestBody Map<String,String> body){
 		ResponseEntity<?> response = null;
 		String eventId=body.get("eventId");
-		if(!eventService.existsByEventId(eventId))
+		if(!eventService.existsById(eventId))
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404,"Event not found."));
 		else {
 			eventService.cancelEvent(eventId);
