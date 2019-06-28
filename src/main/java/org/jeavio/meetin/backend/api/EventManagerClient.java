@@ -37,7 +37,7 @@ public interface EventManagerClient {
 	
 	@DeleteMapping("/api/events")
 	@Headers("Content-Type: application/json")
-	public boolean cancelEvent(@RequestBody Map<String,String> body);
+	public EventDetails cancelEvent(@RequestBody Map<String,String> body);
 	
 	@PostMapping("/api/events")
 	@Headers("Content-Type: application/json")

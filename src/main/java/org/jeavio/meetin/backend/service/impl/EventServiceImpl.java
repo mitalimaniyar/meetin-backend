@@ -72,7 +72,8 @@ public class EventServiceImpl implements EventService {
 
 		event = new EventDetails(title, agenda, roomName, roomSpecifications, start, end, organizer, participants);
 		boolean status = eventManager.addEvent(event);
-//		notificationService.notifyAll(event, "create", repeat);
+		if(status)
+			notificationService.notifyAll(event, "create", repeat);
 
 		int frequency = 0;
 
@@ -208,7 +209,9 @@ public class EventServiceImpl implements EventService {
 	public void cancelEvent(String id) {
 		Map<String,String> requestBody = new LinkedHashMap<String, String>();
 		requestBody.put("id",id);
-		eventManager.cancelEvent(requestBody);
+		EventDetails event = eventManager.cancelEvent(requestBody);
+		if(event!=null)
+			notificationService.notifyAll(event, "cancel", null);
 	}
 
 }
