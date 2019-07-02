@@ -20,7 +20,7 @@ public class AdminController {
 	@Autowired
 	AdminService adminService;
 
-	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','CREATE_ACCESS')")
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ADMIN','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST,path = "/promote")
 	public ResponseEntity<?> promoteSuperAdmin(@RequestBody Map<String,String> body){
 		ResponseEntity<?> response = null;
@@ -33,7 +33,7 @@ public class AdminController {
 		return response;
 	}
 	
-	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','MODIFY_ACCESS')")
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ADMIN','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST,path = "/promote/teamadmin")
 	public ResponseEntity<?> promoteTeamAdmin(@RequestBody Map<String,Object> body){
 		ResponseEntity<?> response = null;
