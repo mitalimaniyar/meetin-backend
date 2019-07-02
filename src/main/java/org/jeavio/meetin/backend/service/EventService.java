@@ -1,5 +1,6 @@
 package org.jeavio.meetin.backend.service;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public interface EventService {
 
 	public boolean checkSlotAvailability(String roomName, String start, String end);
 
-	public List<EventDetails> findEventByRoomName(String string);
+	public List<EventDetails> findEventByRoomId(Integer roomId);
 
 	public List<EventDetails> findEventByEmpId(String empId);
 
@@ -25,7 +26,15 @@ public interface EventService {
 
 	public List<EventDetails> getFutureEvents(String empId);
 
-	public void cancelEvent(String id);
+	public boolean cancelEvent(String id);
 
 	boolean existsById(String eventId);
+	
+	String getEventOrganizerId(String eventId);
+
+	public boolean modifyEvent(EventDTO modifiedEvent);
+
+	boolean checkModifiedSlotAvailability(EventDetails event, EventDTO modifiedEvent) throws ParseException;
+
+	public boolean checkSlotAvailability(EventDTO modifiedEvent);
 }

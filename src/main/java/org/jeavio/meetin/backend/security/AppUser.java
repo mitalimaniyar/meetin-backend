@@ -1,16 +1,17 @@
 package org.jeavio.meetin.backend.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import java.util.Set;
 import org.jeavio.meetin.backend.model.User;
+import org.jeavio.meetin.backend.model.UserTeamRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class AppUser implements UserDetails {
-
+	
 	/**
 	 * 
 	 */
@@ -40,18 +41,20 @@ public class AppUser implements UserDetails {
 	}
 
 	public static AppUser create(User user) {
-//		List<GrantedAuthority> authorities = user.getUserTeamRole().stream()
-//				.map(role -> new SimpleGrantedAuthority(role.getRole().getRole())).collect(Collectors.toList());
-
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		Set<UserTeamRole> userRoles = user.getUserTeamRole();
+		for(UserTeamRole userRole:userRoles) {
+			String role =null;
+			if(userRole.getRole().getRole().equals("super_admin"))
+				role = userRole.getRole().getRole();
+			else if(userRole.getTeam()!=null)
+				role = userRole.getTeam().getId()+"_"+userRole.getRole().getRole();
+			if(role!=null)
+				authorities.add(new SimpleGrantedAuthority(role));
+		}
 		return new AppUser(user.getId(),user.getEmpId(), user.getFirstName(), user.getLastName(), user.getUsername(),
-				user.getPassword(), user.getEmail(), null);
+				user.getPassword(), user.getEmail(), authorities);
 	}
-
-//	private static Collection<? extends GrantedAuthority> getAuthorities(User user) {
-//        String[] userRoles = user.getUserTeamRole();
-//        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(userRoles);
-//        return authorities;
-//    }
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

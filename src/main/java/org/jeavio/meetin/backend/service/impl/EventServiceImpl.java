@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jeavio.meetin.backend.api.EventManagerClient;
 import org.jeavio.meetin.backend.dto.EventDTO;
@@ -40,11 +43,12 @@ public class EventServiceImpl implements EventService {
 	@Autowired
 	NotificationService notificationService;
 
+	private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
 	@Override
 	public boolean addEvent(EventDTO newEvent, String empId) {
 		if (!userService.existsByEmpId(empId))
 			return false;
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 		String title = newEvent.getTitle();
 		String agenda = newEvent.getAgenda();
@@ -72,8 +76,10 @@ public class EventServiceImpl implements EventService {
 
 		event = new EventDetails(title, agenda, roomName, roomSpecifications, start, end, organizer, participants);
 		boolean status = eventManager.addEvent(event);
-		if(status)
+		if (status) 
 			notificationService.notifyAll(event, "create", repeat);
+		else
+			return false;
 
 		int frequency = 0;
 
@@ -109,7 +115,7 @@ public class EventServiceImpl implements EventService {
 	private List<MemberInfo> getParticipants(EventDTO newEvent, String empId) {
 
 		List<MemberInfo> participants = new ArrayList<MemberInfo>();
-		if (!(newEvent.getTeams()).isEmpty()) {
+		if (newEvent.getTeams() != null && !(newEvent.getTeams()).isEmpty()) {
 			for (String teamName : newEvent.getTeams()) {
 				if (teamService.existsByTeamName(teamName)) {
 					List<UserInfo> users = teamService.findTeamMembers(teamName);
@@ -121,7 +127,7 @@ public class EventServiceImpl implements EventService {
 				}
 			}
 		}
-		if (!(newEvent.getMembers()).isEmpty()) {
+		if (newEvent.getMembers() != null && !(newEvent.getMembers()).isEmpty()) {
 			for (String memberEmpId : newEvent.getMembers()) {
 				if (userService.existsByEmpId(memberEmpId)) {
 					UserInfo user = userService.findProfileByEmpId(memberEmpId);
@@ -147,29 +153,38 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public boolean checkSlotAvailability(String roomName, Date start, Date end) {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		return checkSlotAvailability(roomName, format.format(start), format.format(end));
+		EventDetails event = new EventDetails();
+		event.setRoomName(roomName);
+		event.setStart(start);
+		event.setEnd(end);
+		return eventManager.checkSlotAvailability(event);
+		
 	}
 
 	@Override
 	public boolean checkSlotAvailability(String roomName, String start, String end) {
-		Map<String, String> requestBody = new LinkedHashMap<String, String>();
-		requestBody.put("roomName", roomName);
-		requestBody.put("start", start);
-		requestBody.put("end", end);
-		return eventManager.checkSlotAvailability(requestBody);
+		try {
+			return checkSlotAvailability(roomName, format.parse(start), format.parse(end));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	@Override
 	public boolean existsById(String eventId) {
-		Map<String, String> requestBody = new LinkedHashMap<String, String>();
-		requestBody.put("id",eventId);
-		return eventManager.existEvent(requestBody);
+		return eventManager.existEvent(eventId);
 	}
 
 	@Override
-	public List<EventDetails> findEventByRoomName(String roomName) {
-		return eventManager.getEventByRoomName(roomName);
+	public List<EventDetails> findEventByRoomId(Integer roomId) {
+		if (!roomService.existsByRoomId(roomId))
+			return new ArrayList<>();
+		String roomName = roomService.findRoomNameById(roomId);
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
+
+		requestBody.put("roomName", roomName);
+		return eventManager.getEventByRoomName(requestBody);
 	}
 
 	@Override
@@ -191,7 +206,7 @@ public class EventServiceImpl implements EventService {
 	public List<EventDetails> getPastEvents(String empId) {
 		if (!userService.existsByEmpId(empId))
 			return new ArrayList<EventDetails>();
-		Map<String,String> requestBody = new LinkedHashMap<String, String>();
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
 		requestBody.put("empId", empId);
 		return eventManager.getUserPastEvents(requestBody);
 	}
@@ -200,18 +215,140 @@ public class EventServiceImpl implements EventService {
 	public List<EventDetails> getFutureEvents(String empId) {
 		if (!userService.existsByEmpId(empId))
 			return new ArrayList<EventDetails>();
-		Map<String,String> requestBody = new LinkedHashMap<String, String>();
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
 		requestBody.put("empId", empId);
 		return eventManager.getUserFutureEvents(requestBody);
 	}
 
 	@Override
-	public void cancelEvent(String id) {
-		Map<String,String> requestBody = new LinkedHashMap<String, String>();
-		requestBody.put("id",id);
+	public boolean cancelEvent(String id) {
+		Map<String, String> requestBody = new LinkedHashMap<String, String>();
+		requestBody.put("id", id);
 		EventDetails event = eventManager.cancelEvent(requestBody);
-		if(event!=null)
+		if (event != null) {
 			notificationService.notifyAll(event, "cancel", null);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public String getEventOrganizerId(String eventId) {
+		if (existsById(eventId)) {
+			EventDetails event = eventManager.getEventById(eventId);
+			return event.getOrganizer().getEmpId();
+		}
+		return null;
+	}
+
+	@Override
+	public boolean modifyEvent(EventDTO modifiedEvent) {
+		if (modifiedEvent.getId() == null || !existsById(modifiedEvent.getId())
+				|| !roomService.existsByRoomName(modifiedEvent.getRoomName()))
+			return false;
+
+		EventDetails event = eventManager.getEventById(modifiedEvent.getId());
+		boolean availability = false;
+		try {
+			availability = checkModifiedSlotAvailability(event, modifiedEvent);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		if (!availability)
+			return false;
+
+		if (changed(event.getTitle(), modifiedEvent.getTitle()))
+			event.setTitle(modifiedEvent.getTitle());
+		if (changed(event.getAgenda(), modifiedEvent.getAgenda()))
+			event.setAgenda(modifiedEvent.getAgenda());
+		if (changed(event.getRoomName(), modifiedEvent.getRoomName())) {
+			String roomName = modifiedEvent.getRoomName();
+			event.setRoomName(roomName);
+			String roomSpecifications = roomService.getRoomSpecifications(roomName);
+			event.setRoomSpecifications(roomSpecifications);
+		}
+		if (changed(event.getStart(), event.getEnd())) {
+			try {
+				Date newStart = format.parse(modifiedEvent.getStart());
+				event.setStart(newStart);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+		}
+		if (changed(event.getEnd(), modifiedEvent.getEnd())) {
+			try {
+				Date newEnd = format.parse(modifiedEvent.getEnd());
+				event.setEnd(newEnd);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		List<MemberInfo> participants = getNewParticipants(event,modifiedEvent);
+		event.setMembers(participants);
+		
+		boolean status = eventManager.modifyEvent(event);
+		if(status) {
+			notificationService.notifyAll(event, "modified",null);
+			return true;
+		}
+		else
+			return false;
+	}
+
+	private List<MemberInfo> getNewParticipants(EventDetails event, EventDTO modifiedEvent) {
+		Set<MemberInfo> newParticipants = getParticipants(modifiedEvent,event.getOrganizer().getEmpId()).stream().collect(Collectors.toSet());
+		Set<MemberInfo> existingParticipants = event.getMembers().stream().collect(Collectors.toSet());
+		existingParticipants.retainAll(newParticipants);
+		existingParticipants.addAll(newParticipants);
+		return existingParticipants.stream().collect(Collectors.toList());
+	}
+
+	private boolean changed(String value1, String value2) {
+		if (value1.equals(value2))
+			return false;
+		else
+			return true;
+	}
+
+	@Override
+	public boolean checkModifiedSlotAvailability(EventDetails event, EventDTO modifiedEvent) throws ParseException {
+		String oldRoom = event.getRoomName();
+		String newRoom = modifiedEvent.getRoomName();
+
+		Date oldStart = format.parse(event.getStart());
+		Date oldEnd = format.parse(event.getEnd());
+		Date newStart = format.parse(modifiedEvent.getStart());
+		Date newEnd = format.parse(modifiedEvent.getEnd());
+		if (newRoom.equals(oldRoom) && newStart.equals(oldStart) && newEnd.equals(oldEnd)) {
+			return true;
+		} else if (newRoom.equals(oldRoom)) {
+			EventDetails dummyEvent = new EventDetails();
+			dummyEvent.setId(event.getId());
+			dummyEvent.setRoomName(newRoom);
+			dummyEvent.setStart(newStart);
+			dummyEvent.setEnd(newEnd);
+			return eventManager.checkModifiedSlotAvailability(dummyEvent);
+		} else {
+			if (!roomService.existsByRoomName(newRoom))
+				return false;
+			return checkSlotAvailability(newRoom, newStart, newEnd);
+		}
+	}
+
+	@Override
+	public boolean checkSlotAvailability(EventDTO modifiedEvent) {
+		if (modifiedEvent.getId() == null || !existsById(modifiedEvent.getId())
+				|| !roomService.existsByRoomName(modifiedEvent.getRoomName()))
+			return false;
+
+		EventDetails event = eventManager.getEventById(modifiedEvent.getId());
+		try {
+			return checkModifiedSlotAvailability(event, modifiedEvent);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 }

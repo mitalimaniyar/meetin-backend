@@ -61,7 +61,7 @@ public class UserController {
 		ResponseEntity<?> response = null;
 		if (!userService.existsByEmpId(user.getEmpId()) && !userService.existsByUsername(user.getUsername())) {
 			userService.addUser(user);
-			response = ResponseEntity.status(HttpStatus.OK).body("User Created");
+			response = ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(201, "User Created"));
 
 		} else {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -110,7 +110,7 @@ public class UserController {
 		return response;
 	}
 
-	@RequestMapping(method = RequestMethod.POST, path = "/api/user/my/changepwd")
+	@RequestMapping(method = RequestMethod.POST, path = "/api/users/my/changepwd")
 	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {

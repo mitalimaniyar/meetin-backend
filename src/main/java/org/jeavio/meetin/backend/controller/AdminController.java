@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/admin/")
 public class AdminController {
 	
 	@Autowired
 	AdminService adminService;
 
-	@RequestMapping(method = RequestMethod.POST,path = "/api/admin/promote")
+	@RequestMapping(method = RequestMethod.POST,path = "/promote")
 	public ResponseEntity<?> promoteSuperAdmin(@RequestBody Map<String,String> body){
 		ResponseEntity<?> response = null;
-		String empId = body.get("EmpId");
+		String empId = body.get("empId");
 		if(adminService.promoteSuperAdmin(empId)) {
 			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));
 		}else {
@@ -30,10 +31,10 @@ public class AdminController {
 		return response;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST,path = "/api/admin/promote/teamadmin")
+	@RequestMapping(method = RequestMethod.POST,path = "/promote/teamadmin")
 	public ResponseEntity<?> promoteTeamAdmin(@RequestBody Map<String,Object> body){
 		ResponseEntity<?> response = null;
-		String empId = (String) body.get("EmpId");
+		String empId = (String) body.get("empId");
 		Integer teamId = (Integer) body.get("teamId");
 		if(adminService.promoteTeamAdmin(teamId, empId)) {
 			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));

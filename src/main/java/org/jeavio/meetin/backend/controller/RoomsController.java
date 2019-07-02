@@ -49,7 +49,7 @@ public class RoomsController {
 		return response;
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE, path = "/api/rooms/")
+	@RequestMapping(method = RequestMethod.DELETE, path = "/api/rooms")
 	public ResponseEntity<?> removeRoom(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
 		String roomName = body.get("roomName");
@@ -69,11 +69,11 @@ public class RoomsController {
 		ResponseEntity<?> response = null;
 		Integer roomId =  modifiedRoomDetails.getRoomId();
 		String newRoomName =  modifiedRoomDetails.getName();
-
+		
 		if (!roomService.existsByRoomId(roomId)) {
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new ApiResponse(404, "Requested room not found."));
-		} else if (roomService.existsByRoomName(newRoomName)) {
+		} else if (!roomService.findRoomNameById(roomId).equals(newRoomName) && roomService.existsByRoomName(newRoomName)) {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new ApiResponse(500, "Room name already exists."));
 		} else {

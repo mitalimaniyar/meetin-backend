@@ -9,6 +9,7 @@ import org.jeavio.meetin.backend.dto.UserInfo;
 import org.jeavio.meetin.backend.model.User;
 import org.jeavio.meetin.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -112,7 +113,8 @@ public class UserServiceImpl implements UserService {
 		String currentPassword = body.get("currentPassword");
 		String newPassword = body.get("newPassword");
 		String encodedOldPwd = findByEmpId(empId).getPassword();
-		if(!encodedOldPwd.equals(passwordEncoder.encode(currentPassword)))
+		
+		if(!BCrypt.checkpw(currentPassword,encodedOldPwd))
 			return 403;
 		if(currentPassword.equals(newPassword))
 			return 400;

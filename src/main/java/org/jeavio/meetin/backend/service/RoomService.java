@@ -21,4 +21,6 @@ public interface RoomService {
 	public List<String> getRoomNames();
 
 	public String getRoomSpecifications(String roomName);
+
+	public String findRoomNameById(Integer roomId);
 }

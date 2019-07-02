@@ -43,7 +43,7 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public void modifyRoom(RoomDetails modifiedRoomDetails) {
-		if(existsByRoomName(modifiedRoomDetails.getName()) || !existsByRoomId(modifiedRoomDetails.getRoomId()))
+		if(!existsByRoomId(modifiedRoomDetails.getRoomId()))
 			return;
 		Room room = roomRepository.findById(modifiedRoomDetails.getRoomId()).get();
 		room.setRoomName(modifiedRoomDetails.getName());
@@ -77,5 +77,12 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public String getRoomSpecifications(String roomName) {
 		return roomRepository.findByRoomName(roomName).getSpecifications();
+	}
+
+	@Override
+	public String findRoomNameById(Integer roomId) {
+		if(!existsByRoomId(roomId))
+			return null;
+		return roomRepository.findById(roomId).get().getRoomName();
 	}
 }
