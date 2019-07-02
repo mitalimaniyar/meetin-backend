@@ -11,6 +11,7 @@ import org.jeavio.meetin.backend.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ public class TeamsController {
 	@Autowired
 	private TeamService teamService;
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/teams")
 	public ResponseEntity<?> getAllTeams() {
 		List<TeamDetails> teams = teamService.find();
@@ -35,6 +37,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/teams")
 	public ResponseEntity<?> addTeam(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -49,6 +52,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','DELETE_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/teams")
 	public ResponseEntity<?> removeTeam(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -62,6 +66,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.PUT, path = "/api/teams")
 	public ResponseEntity<?> modifyTeamName(@RequestBody Map<String, Object> body) {
 		ResponseEntity<?> response = null;
@@ -82,6 +87,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/teams/my")
 	public ResponseEntity<?> getTeams() {
 
@@ -101,6 +107,7 @@ public class TeamsController {
 
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/teams/{teamId}/add")
 	public ResponseEntity<?> getNonTeamMembers(@PathVariable(name = "teamId") Integer teamId) {
 
@@ -114,6 +121,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/teams/{teamId}/info")
 	public ResponseEntity<?> getTeamMembers(@PathVariable(name = "teamId") Integer teamId) {
 		ResponseEntity<?> response = null;
@@ -126,6 +134,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/teams/{teamId}/addmembers")
 	public ResponseEntity<?> addTeamMembers(@RequestBody Map<String, List<String>> body,
 			@PathVariable(name = "teamId") Integer teamId) {
@@ -140,6 +149,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/teams/{teamId}/remove")
 	public ResponseEntity<?> removeTeamMember(@RequestBody Map<String, String> body,
 			@PathVariable(name = "teamId") Integer teamId) {
@@ -155,6 +165,7 @@ public class TeamsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAMS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/teams/name")
 	public ResponseEntity<?> getTeamNames() {
 		ResponseEntity<?> response = null;

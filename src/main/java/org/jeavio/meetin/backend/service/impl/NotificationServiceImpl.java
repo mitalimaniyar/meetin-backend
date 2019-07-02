@@ -4,14 +4,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.jeavio.meetin.backend.api.NotificationClient;
 import org.jeavio.meetin.backend.dto.ApiResponse;
 import org.jeavio.meetin.backend.dto.EventDetails;
 import org.jeavio.meetin.backend.dto.NotificationDTO;
+import org.jeavio.meetin.backend.dto.NotificationRequest;
 import org.jeavio.meetin.backend.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,28 +26,25 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public void notifyAll(EventDetails event, String type, String repeat) {
-		log.info("Notification type : {}", type);
-		Map<String, Object> requestBody = prepareRequestBody(event, type, repeat);
+		
+		NotificationRequest requestBody = prepareRequestBody(event, type, repeat);
+		log.info("Notification type : {} : Sending notifications to : {}", type,requestBody.getEmailIds());
 		ApiResponse response = notificationClient.sendNotification(requestBody);
 		if (response.getCode() != 200)
 			log.info("Sending Notification failed.");
 	}
 
-	private Map<String, Object> prepareRequestBody(EventDetails event, String type, String repeat) {
+	private NotificationRequest prepareRequestBody(EventDetails event, String type, String repeat) {
 		NotificationDTO notificationEvent = getNotification(event, repeat);
 		List<String> emailIds = getNotifiers(event);
-		Map<String, Object> requestBody = new LinkedHashMap<String, Object>();
-		requestBody.put("event", notificationEvent);
-		requestBody.put("emailIds", emailIds);
-		requestBody.put("triggerType", type);
+		NotificationRequest requestBody = new NotificationRequest(type, emailIds, notificationEvent);
 		return requestBody;
 	}
-
+	
 	private List<String> getNotifiers(EventDetails event) {
 		List<String> emailIds = new ArrayList<String>();
 		emailIds.add(event.getOrganizer().getEmail());
 		event.getMembers().forEach(member -> emailIds.add(member.getEmail()));
-		log.info("Sending notifications to : {}", emailIds);
 		return emailIds;
 	}
 
@@ -63,7 +58,6 @@ public class NotificationServiceImpl implements NotificationService {
 			start = format.parse(event.getStart());
 			end = format.parse(event.getEnd());
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		NotificationDTO notification = new NotificationDTO(event.getTitle(), event.getAgenda(),
@@ -71,6 +65,16 @@ public class NotificationServiceImpl implements NotificationService {
 				repeat);
 		return notification;
 
+	}
+
+	@Override
+	public void notifyAll(EventDetails event, String type, String repeat,List<String> membersEmails) {
+		NotificationRequest requestBody = prepareRequestBody(event, type, repeat);
+		requestBody.setEmailIds(membersEmails);
+		log.info("Notification type : {} : Sending notifications to : {}", type,requestBody.getEmailIds());
+		ApiResponse response = notificationClient.sendNotification(requestBody);
+		if (response.getCode() != 200)
+			log.info("Sending Notification failed.");
 	}
 
 }

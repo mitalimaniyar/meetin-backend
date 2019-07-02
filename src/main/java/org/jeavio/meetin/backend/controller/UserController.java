@@ -13,6 +13,7 @@ import org.jeavio.meetin.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/users/me")
 	public ResponseEntity<?> getProfile() {
 		ResponseEntity<?> response = null;
@@ -48,6 +50,7 @@ public class UserController {
 
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/users")
 	public ResponseEntity<?> getAllUsers(){
 		ResponseEntity<?> response = null;
@@ -56,6 +59,7 @@ public class UserController {
 		return response;
 	}
 	
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/users")
 	public ResponseEntity<?> addUser(@Valid @RequestBody UserDTO user) {
 		ResponseEntity<?> response = null;
@@ -71,6 +75,7 @@ public class UserController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS','DELETE_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/users")
 	public ResponseEntity<?> removeUser(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -84,6 +89,7 @@ public class UserController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.PUT, path = "/api/users")
 	public ResponseEntity<?> modifyUser(@Valid @RequestBody UserDTO modifiedUser) {
 		ResponseEntity<?> response = null;
@@ -110,6 +116,7 @@ public class UserController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'USERS_PASSWORD','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/users/my/changepwd")
 	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;

@@ -1,8 +1,7 @@
 package org.jeavio.meetin.backend.api;
 
-import java.util.Map;
-
 import org.jeavio.meetin.backend.dto.ApiResponse;
+import org.jeavio.meetin.backend.dto.NotificationRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,5 +13,5 @@ public interface NotificationClient {
 
 	@PostMapping("/api/notify")
 	@Headers("Content-Type: application/json")
-	public ApiResponse sendNotification(@RequestBody Map<String,Object> body);
+	public ApiResponse sendNotification(@RequestBody NotificationRequest requestBody);
 }

@@ -13,6 +13,7 @@ import org.jeavio.meetin.backend.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ public class EventController {
 	@Autowired
 	EventService eventService;
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events")
 	public ResponseEntity<?> getBookings() {
 		ResponseEntity<?> response = null;
@@ -33,6 +35,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/all/{roomId}")
 	public ResponseEntity<?> getRoomBookings(@PathVariable(name = "roomId") Integer roomId) {
 		ResponseEntity<?> response = null;
@@ -40,6 +43,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/my")
 	public ResponseEntity<?> userEvents() {
 		ResponseEntity<?> response = null;
@@ -58,6 +62,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/my/past")
 	public ResponseEntity<?> pastEvents() {
 		ResponseEntity<?> response = null;
@@ -76,6 +81,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/my/future")
 	public ResponseEntity<?> futureEvents() {
 		ResponseEntity<?> response = null;
@@ -94,6 +100,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/events")
 	public ResponseEntity<?> addEvent(@Valid @RequestBody EventDTO newEvent) {
 		ResponseEntity<?> response = null;
@@ -119,6 +126,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#body.get('eventId')),'DELETE_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/events")
 	public ResponseEntity<?> cancelEvent(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -136,6 +144,7 @@ public class EventController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#modifiedEvent.id),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.PUT, path = "/api/events")
 	public ResponseEntity<?> modifyEventDetails(@Valid @RequestBody EventDTO modifiedEvent) {
 		ResponseEntity<?> response = null;

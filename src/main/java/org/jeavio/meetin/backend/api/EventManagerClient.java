@@ -50,7 +50,7 @@ public interface EventManagerClient {
 
 	@GetMapping("/api/events/exists/{eventId}")
 	@Headers("Content-Type: application/json")
-	public boolean existEvent(@PathVariable(name = "eventId") String eventId);
+	public boolean existsEvent(@PathVariable(name = "eventId") String eventId);
 
 	@GetMapping("/api/events/info/{eventId}")
 	@Headers("Content-Type: application/json")

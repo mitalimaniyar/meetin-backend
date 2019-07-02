@@ -27,7 +27,7 @@ public class AuthorizationManager {
 		AppUser user = (AppUser) authentication.getPrincipal();
 		List<String> authorities = user.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toList());
-		if (module.equals("rooms")) {
+		if (module.equals("ROOMS")) {
 			if (access.equals("VIEW_ACCESS"))
 				return true;
 			boolean otherAccess = access.equals("CREATE_ACCESS") || access.equals("MODIFY_ACCESS")
@@ -38,75 +38,62 @@ public class AuthorizationManager {
 				return false;
 		}
 
-		if (module.equals("admin")) {
+		if (module.equals("ADMIN")) {
 			if (authorities.contains("super_admin"))
 				return true;
 			else
 				return false;
 		}
 
-		if (module.startsWith("users")) {
-			if (module.equals("users") && access.equals("VIEW_ACCESS"))
+		if (module.startsWith("USERS")) {
+			if (module.equals("USERS") && access.equals("VIEW_ACCESS"))
 				return true;
-			if (module.equals("users") && (access.equals("CREATE_ACCESS") || access.equals("MODIFY_ACCESS")
+			if (module.equals("USERS") && (access.equals("CREATE_ACCESS") || access.equals("MODIFY_ACCESS")
 					|| access.equals("DELETE_ACCESS"))) {
 				if (authorities.contains("super_admin"))
 					return true;
 				else
 					return false;
 			}
-			if (module.equals("users_profile"))
-				return true;
-			if (module.equals("users_password") && access.equals("MODIFY_ACCESS"))
+			if (module.equals("USERS_PASSWORD") && access.equals("MODIFY_ACCESS"))
 				return true;
 		}
 
-		if (module.startsWith("teams")) {
-
-			if (module.equals("teams") && access.equals("VIEW_ACCESS"))
+		if (module.equals("TEAMS") && access.equals("VIEW_ACCESS"))
+			return true;
+		if (module.equals("TEAMS") && (access.equals("CREATE_ACCESS") || access.equals("MODIFY_ACCESS")
+				|| access.equals("DELETE_ACCESS"))) {
+			if (authorities.contains("super_admin"))
 				return true;
-			if (module.equals("teams") && (access.equals("CREATE_ACCESS") || access.equals("MODIFY_ACCESS")
-					|| access.equals("DELETE_ACCESS"))) {
-				if (authorities.contains("super_admin"))
-					return true;
-				else
-					return false;
-			}
-			if (module.equals("teams_details"))
-				return true;
+			else
+				return false;
 		}
-		if (module.startsWith("team_ops")) {
+
+		if (module.startsWith("TEAM_OPS")) {
 			String teamId = module.substring(module.length() - 1);
 			String admin = teamId + "_team_admin";
-			String member = teamId + "_team_member";
-			if (module.startsWith("team_ops_members")) {
-				if (authorities.contains(admin) || authorities.contains(member))
-					return true;
-				else
-					return false;
-			}
 			if (authorities.contains(admin))
 				return true;
 			else
 				return false;
 		}
 
-		if (module.startsWith("events")) {
+		if (module.startsWith("EVENTS")) {
 			if (access.equals("CREATE_ACCESS") || access.equals("VIEW_ACCESS"))
 				return true;
-			if(access.equals("DELETE_ACCESS")) {
-				String eventId = module.substring(8);
+			if (access.equals("DELETE_ACCESS")) {
+				String eventId = module.substring(7);
 				String organizerId = eventService.getEventOrganizerId(eventId);
-				if(authorities.contains("super_admin") || organizerId.equals(user.getEmpId()))
+				if (organizerId!=null && (authorities.contains("super_admin") || organizerId.equals(user.getEmpId())))
 					return true;
 				else
 					return false;
 			}
 			if (access.equals("MODIFY_ACCESS")) {
-				String eventId = module.substring(8);
+				String eventId = module.substring(7);
 				String organizerId = eventService.getEventOrganizerId(eventId);
-				if(organizerId.equals(user.getEmpId()))
-						return true;
+				if (organizerId!=null && organizerId.equals(user.getEmpId()))
+					return true;
 				else
 					return false;
 			}

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +75,7 @@ public class EventServiceImpl implements EventService {
 
 		event = new EventDetails(title, agenda, roomName, roomSpecifications, start, end, organizer, participants);
 		boolean status = eventManager.addEvent(event);
-		if (status) 
+		if (status)
 			notificationService.notifyAll(event, "create", repeat);
 		else
 			return false;
@@ -158,7 +157,7 @@ public class EventServiceImpl implements EventService {
 		event.setStart(start);
 		event.setEnd(end);
 		return eventManager.checkSlotAvailability(event);
-		
+
 	}
 
 	@Override
@@ -173,7 +172,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public boolean existsById(String eventId) {
-		return eventManager.existEvent(eventId);
+		return eventManager.existsEvent(eventId);
 	}
 
 	@Override
@@ -284,20 +283,47 @@ public class EventServiceImpl implements EventService {
 				e.printStackTrace();
 			}
 		}
-		List<MemberInfo> participants = getNewParticipants(event,modifiedEvent);
+		List<MemberInfo> oldMembers = event.getMembers();
+		List<MemberInfo> participants = getNewParticipants(event, modifiedEvent);
 		event.setMembers(participants);
-		
+
 		boolean status = eventManager.modifyEvent(event);
-		if(status) {
-			notificationService.notifyAll(event, "modified",null);
+		if (status) {
+			List<String> oldMembersEmails = getOldMembersEmails(event.getMembers(), oldMembers);
+			oldMembersEmails.add(event.getOrganizer().getEmail());
+			if (!oldMembersEmails.isEmpty())
+				notificationService.notifyAll(event, "modify", null, oldMembersEmails);
+			
+			List<String> removedMembersEmails = getDifferentMembersEmails(oldMembers, event.getMembers());
+			if (!removedMembersEmails.isEmpty())
+				notificationService.notifyAll(event, "cancel", null, removedMembersEmails);
+
+			List<String> newMembersEmails = getDifferentMembersEmails(event.getMembers(), oldMembers);
+			if (!newMembersEmails.isEmpty())
+				notificationService.notifyAll(event, "create", null, newMembersEmails);
+
 			return true;
-		}
-		else
+		} else
 			return false;
 	}
 
+	private List<String> getOldMembersEmails(List<MemberInfo> members, List<MemberInfo> oldMembers) {
+		Set<MemberInfo> reatained = members.stream().collect(Collectors.toSet());
+		reatained.retainAll(oldMembers);
+		List<String> emailIds = reatained.stream().map(member -> member.getEmail()).collect(Collectors.toList());
+		return emailIds;
+	}
+
+	private List<String> getDifferentMembersEmails(List<MemberInfo> members1, List<MemberInfo> members2) {
+		Set<MemberInfo> difference = members1.stream().collect(Collectors.toSet());
+		difference.removeAll(members2);
+		List<String> emailIds = difference.stream().map(member -> member.getEmail()).collect(Collectors.toList());
+		return emailIds;
+	}
+
 	private List<MemberInfo> getNewParticipants(EventDetails event, EventDTO modifiedEvent) {
-		Set<MemberInfo> newParticipants = getParticipants(modifiedEvent,event.getOrganizer().getEmpId()).stream().collect(Collectors.toSet());
+		Set<MemberInfo> newParticipants = getParticipants(modifiedEvent, event.getOrganizer().getEmpId()).stream()
+				.collect(Collectors.toSet());
 		Set<MemberInfo> existingParticipants = event.getMembers().stream().collect(Collectors.toSet());
 		existingParticipants.retainAll(newParticipants);
 		existingParticipants.addAll(newParticipants);

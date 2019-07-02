@@ -7,6 +7,7 @@ import org.jeavio.meetin.backend.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,6 +20,7 @@ public class AdminController {
 	@Autowired
 	AdminService adminService;
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST,path = "/promote")
 	public ResponseEntity<?> promoteSuperAdmin(@RequestBody Map<String,String> body){
 		ResponseEntity<?> response = null;
@@ -31,6 +33,7 @@ public class AdminController {
 		return response;
 	}
 	
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST,path = "/promote/teamadmin")
 	public ResponseEntity<?> promoteTeamAdmin(@RequestBody Map<String,Object> body){
 		ResponseEntity<?> response = null;

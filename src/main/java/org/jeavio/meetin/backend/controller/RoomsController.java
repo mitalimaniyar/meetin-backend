@@ -11,6 +11,7 @@ import org.jeavio.meetin.backend.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,7 @@ public class RoomsController {
 	@Autowired
 	RoomService roomService;
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','VIEW_ACCESS')")
 	@RequestMapping(method = RequestMethod.GET, path = "/api/rooms")
 	public ResponseEntity<?> getAllRooms() {
 		List<RoomDetails> rooms = roomService.fetchRooms();
@@ -35,6 +37,7 @@ public class RoomsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','CREATE_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST, path = "/api/rooms")
 	public ResponseEntity<?> addRoom(@Valid @RequestBody RoomDetails roomDetails) {
 		ResponseEntity<?> response = null;
@@ -49,6 +52,7 @@ public class RoomsController {
 		return response;
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','DELETE_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/rooms")
 	public ResponseEntity<?> removeRoom(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -64,6 +68,7 @@ public class RoomsController {
 
 	}
 
+	@PreAuthorize("@authorizationManager.authorize(authentication,'ROOMS','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.PUT, path = "/api/rooms")
 	public ResponseEntity<?> modifyRoom(@Valid @RequestBody RoomDetails  modifiedRoomDetails) {
 		ResponseEntity<?> response = null;
