@@ -53,5 +53,23 @@ public class TeamDetails {
 		this.isAdmin = isAdmin;
 	}
 
+
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"teamId\":\"");
+		builder.append(teamId);
+		builder.append("\", \"teamName\":\"");
+		builder.append(teamName);
+		builder.append("\", \"teamMembers\":\"");
+		builder.append(teamMembers);
+		builder.append("\", \"teamAdmins\":\"");
+		builder.append(teamAdmins);
+		builder.append("\", \"isAdmin\":\"");
+		builder.append(isAdmin);
+		builder.append("\"}");
+		return builder.toString();
+	}
 	
 }

@@ -51,4 +51,23 @@ public class MemberInfo extends UserInfo {
 			return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"id\":\"");
+		builder.append(getId());
+		builder.append("\", \"empId\":\"");
+		builder.append(getEmpId());
+		builder.append("\", \"name\":\"");
+		builder.append(getName());
+		builder.append("\", \"email\":\"");
+		builder.append(getEmail());
+		builder.append("\",\"team\":\"");
+		builder.append(team);
+		builder.append("\"}");
+		return builder.toString();
+	}
+	
+	
+
 }

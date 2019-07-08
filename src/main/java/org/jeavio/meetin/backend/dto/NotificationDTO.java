@@ -15,12 +15,12 @@ public class NotificationDTO {
 	private Date startDate;
 	private Date endDate;
 	private String repeat;
-	
-	public NotificationDTO() { 		}
 
-	
-	public NotificationDTO(String subject, String agenda, String organizer, String roomName,String roomSpecifications, List<String> members,
-			Date startDate, Date endDate,String repeat) {
+	public NotificationDTO() {
+	}
+
+	public NotificationDTO(String subject, String agenda, String organizer, String roomName, String roomSpecifications,
+			List<String> members, Date startDate, Date endDate, String repeat) {
 
 		this.subject = subject;
 		this.agenda = agenda;
@@ -30,9 +30,8 @@ public class NotificationDTO {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.repeat = repeat;
-		this.roomSpecifications =roomSpecifications;
+		this.roomSpecifications = roomSpecifications;
 	}
-
 
 	public String getSubject() {
 		return subject;
@@ -66,16 +65,13 @@ public class NotificationDTO {
 		this.roomName = roomName;
 	}
 
-	
 	public String getRoomSpecifications() {
 		return roomSpecifications;
 	}
 
-
 	public void setRoomSpecifications(String roomSpecifications) {
 		this.roomSpecifications = roomSpecifications;
 	}
-
 
 	public List<String> getMembers() {
 		return members;
@@ -102,15 +98,37 @@ public class NotificationDTO {
 		this.endDate = endDate;
 	}
 
-
 	public String getRepeat() {
 		return repeat;
 	}
 
-
 	public void setRepeat(String repeat) {
 		this.repeat = repeat;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"subject\":\"");
+		builder.append(subject);
+		builder.append("\", \"agenda\":\"");
+		builder.append(agenda);
+		builder.append("\", \"organizer\":\"");
+		builder.append(organizer);
+		builder.append("\", \"roomName\":\"");
+		builder.append(roomName);
+		builder.append("\", \"roomSpecifications\":\"");
+		builder.append(roomSpecifications);
+		builder.append("\", \"members\":\"");
+		builder.append(members);
+		builder.append("\", \"startDate\":\"");
+		builder.append(startDate);
+		builder.append("\", \"endDate\":\"");
+		builder.append(endDate);
+		builder.append("\", \"repeat\":\"");
+		builder.append(repeat);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
 }

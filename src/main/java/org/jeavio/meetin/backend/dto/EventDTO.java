@@ -72,7 +72,32 @@ public class EventDTO {
 	public void setTeams(List<String> teams) {
 		this.teams = teams;
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"id\":\"");
+		builder.append(id);
+		builder.append("\", \"roomName\":\"");
+		builder.append(roomName);
+		builder.append("\", \"title\":\"");
+		builder.append(title);
+		builder.append("\", \"agenda\":\"");
+		builder.append(agenda);
+		builder.append("\", \"start\":\"");
+		builder.append(start);
+		builder.append("\", \"end\":\"");
+		builder.append(end);
+		builder.append("\", \"repeat\":\"");
+		builder.append(repeat);
+		builder.append("\", \"members\":\"");
+		builder.append(members);
+		builder.append("\", \"teams\":\"");
+		builder.append(teams);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
 	
 
 }

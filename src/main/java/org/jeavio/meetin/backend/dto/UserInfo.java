@@ -89,6 +89,20 @@ public class UserInfo {
 		}
 		return true;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"id\":\"");
+		builder.append(id);
+		builder.append("\", \"empId\":\"");
+		builder.append(empId);
+		builder.append("\", \"name\":\"");
+		builder.append(name);
+		builder.append("\", \"email\":\"");
+		builder.append(email);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
 }

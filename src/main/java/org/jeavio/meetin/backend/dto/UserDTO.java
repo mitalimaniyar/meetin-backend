@@ -97,6 +97,26 @@ public class UserDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"id\":\"");
+		builder.append(id);
+		builder.append("\", \"empId\":\"");
+		builder.append(empId);
+		builder.append("\", \"firstName\":\"");
+		builder.append(firstName);
+		builder.append("\", \"lastName\":\"");
+		builder.append(lastName);
+		builder.append("\", \"username\":\"");
+		builder.append(username);
+		builder.append("\", \"password\":\"");
+		builder.append(password);
+		builder.append("\", \"email\":\"");
+		builder.append(email);
+		builder.append("\"}");
+		return builder.toString();
+	}
 	
 }

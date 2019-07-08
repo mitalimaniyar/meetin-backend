@@ -27,4 +27,16 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"username\":\"");
+		builder.append(username);
+		builder.append("\", \"password\":\"");
+		builder.append(password);
+		builder.append("\"}");
+		return builder.toString();
+	}
+    
 }

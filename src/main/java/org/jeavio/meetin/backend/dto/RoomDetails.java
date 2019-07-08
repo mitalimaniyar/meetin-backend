@@ -64,6 +64,19 @@ public class RoomDetails {
 		this.specifications = specifications;
 	}
 
-	
-	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"roomId\":\"");
+		builder.append(roomId);
+		builder.append("\", \"name\":\"");
+		builder.append(name);
+		builder.append("\", \"capacity\":\"");
+		builder.append(capacity);
+		builder.append("\", \"specifications\":\"");
+		builder.append(specifications);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
 }

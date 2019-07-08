@@ -43,4 +43,17 @@ public class NotificationRequest {
 		this.event = event;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"triggerType\":\"");
+		builder.append(triggerType);
+		builder.append("\", \"emailIds\":\"");
+		builder.append(emailIds);
+		builder.append("\", \"event\":\"");
+		builder.append(event);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
 }

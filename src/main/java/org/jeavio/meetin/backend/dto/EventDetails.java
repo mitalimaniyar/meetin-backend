@@ -119,4 +119,30 @@ public class EventDetails {
 		this.members = members;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"id\":\"");
+		builder.append(id);
+		builder.append("\", \"title\":\"");
+		builder.append(title);
+		builder.append("\", \"agenda\":\"");
+		builder.append(agenda);
+		builder.append("\", \"roomName\":\"");
+		builder.append(roomName);
+		builder.append("\", \"roomSpecifications\":\"");
+		builder.append(roomSpecifications);
+		builder.append("\", \"start\":\"");
+		builder.append(start);
+		builder.append("\", \"end\":\"");
+		builder.append(end);
+		builder.append("\", \"organizer\":\"");
+		builder.append(organizer);
+		builder.append("\", \"members\":\"");
+		builder.append(members);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
+	
 }

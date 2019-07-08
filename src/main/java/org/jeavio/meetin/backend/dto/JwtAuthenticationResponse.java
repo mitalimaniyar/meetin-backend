@@ -23,4 +23,17 @@ public class JwtAuthenticationResponse {
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
     }
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"accessToken\":\"");
+		builder.append(accessToken);
+		builder.append("\", \"tokenType\":\"");
+		builder.append(tokenType);
+		builder.append("\"}");
+		return builder.toString();
+	}
+
+	
 }
