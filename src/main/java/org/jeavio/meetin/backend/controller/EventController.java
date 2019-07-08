@@ -57,7 +57,7 @@ public class EventController {
 		if (!events.isEmpty()) {
 			response = ResponseEntity.status(HttpStatus.OK).body(events);
 		} else {
-			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Not Found"));
+			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(404, "Not Found"));
 		}
 		return response;
 	}
@@ -76,7 +76,7 @@ public class EventController {
 		if (!pastEvents.isEmpty()) {
 			response = ResponseEntity.status(HttpStatus.OK).body(pastEvents);
 		} else {
-			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Not Found"));
+			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(404, "Not Found"));
 		}
 		return response;
 	}
@@ -95,7 +95,7 @@ public class EventController {
 		if (!futureEvents.isEmpty()) {
 			response = ResponseEntity.status(HttpStatus.OK).body(futureEvents);
 		} else {
-			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Not Found"));
+			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(404, "Not Found"));
 		}
 		return response;
 	}
