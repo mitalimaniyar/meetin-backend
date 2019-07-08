@@ -1,5 +1,7 @@
 package org.jeavio.meetin.backend.service.impl;
 
+import java.util.List;
+
 import org.jeavio.meetin.backend.dao.UserTeamRoleRepository;
 import org.jeavio.meetin.backend.model.Role;
 import org.jeavio.meetin.backend.model.Team;
@@ -27,6 +29,19 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	UserTeamRoleRepository userTeamRoleRepository;
 
+	@Override
+	public boolean promoteTeamAdmin(Integer teamId, List<String> empIds) {
+		if(!teamService.existsByTeamId(teamId))
+			return false;
+		for(String empId:empIds) {
+			if(!userService.existsByEmpId(empId))
+				return false;
+			if(!promoteTeamAdmin(teamId,empId))
+				return false;
+		}
+		return true;
+	}
+	
 	@Override
 	public boolean promoteTeamAdmin(Integer teamId, String empId) {
 		if(!userService.existsByEmpId(empId) || !teamService.existsByTeamId(teamId))
@@ -63,5 +78,6 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return true;
 	}
+
 	
 }

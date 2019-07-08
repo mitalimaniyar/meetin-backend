@@ -1,5 +1,6 @@
 package org.jeavio.meetin.backend.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jeavio.meetin.backend.dto.ApiResponse;
@@ -33,13 +34,14 @@ public class AdminController {
 		return response;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@PreAuthorize("@authorizationManager.authorize(authentication,'ADMIN','MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.POST,path = "/promote/teamadmin")
 	public ResponseEntity<?> promoteTeamAdmin(@RequestBody Map<String,Object> body){
 		ResponseEntity<?> response = null;
-		String empId = (String) body.get("empId");
+		List<String> empIds = (List<String>) body.get("empIds");
 		Integer teamId = (Integer) body.get("teamId");
-		if(adminService.promoteTeamAdmin(teamId, empId)) {
+		if(adminService.promoteTeamAdmin(teamId, empIds)) {
 			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));
 		}else {
 			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(500,"Unable to execute request"));
