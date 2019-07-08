@@ -40,7 +40,7 @@ public class AdminController {
 	public ResponseEntity<?> promoteTeamAdmin(@RequestBody Map<String,Object> body){
 		ResponseEntity<?> response = null;
 		List<String> empIds = (List<String>) body.get("empIds");
-		Integer teamId = (Integer) body.get("teamId");
+		Integer teamId = Integer.parseInt(body.get("teamId").toString());
 		if(adminService.promoteTeamAdmin(teamId, empIds)) {
 			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));
 		}else {
