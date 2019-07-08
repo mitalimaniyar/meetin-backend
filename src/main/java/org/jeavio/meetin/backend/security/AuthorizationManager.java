@@ -27,6 +27,10 @@ public class AuthorizationManager {
 		AppUser user = (AppUser) authentication.getPrincipal();
 		List<String> authorities = user.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toList());
+		
+		if (authorities.contains("super_admin"))
+			return true;
+		
 		if (module.equals("ROOMS")) {
 			if (access.equals("VIEW_ACCESS"))
 				return true;

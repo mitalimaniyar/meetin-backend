@@ -3,6 +3,7 @@ package org.jeavio.meetin.backend.security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,8 @@ public class JwtTokenProvider {
 	private static final String CLAIM_KEY_CREATED = "created";
 
 	private static final String CLAIM_KEY_USERID = "userId";
+	
+	private static final String CLAIM_KEY_ADMIN = "isAdmin";
 
 	private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
@@ -34,14 +37,18 @@ public class JwtTokenProvider {
 
 	@Value("${app.jwt.expiration}")
 	private Long expiration;
+	
 
 	public String generateToken(Authentication authentication) {
 
 		AppUser userDetails = (AppUser) authentication.getPrincipal();
+		boolean isAdmin = userDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
+				.collect(Collectors.toList()).contains("super_admin");
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
 		claims.put(CLAIM_KEY_CREATED, new Date());
 		claims.put(CLAIM_KEY_USERID, userDetails.getEmpId());
+		claims.put(CLAIM_KEY_ADMIN,isAdmin);
 		return generateToken(claims);
 	}
 

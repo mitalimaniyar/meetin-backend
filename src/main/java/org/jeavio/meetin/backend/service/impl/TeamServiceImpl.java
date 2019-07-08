@@ -2,6 +2,8 @@ package org.jeavio.meetin.backend.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jeavio.meetin.backend.dao.TeamRepository;
 import org.jeavio.meetin.backend.dao.UserTeamRoleRepository;
@@ -50,7 +52,7 @@ public class TeamServiceImpl implements TeamService {
 			return new ArrayList<>();
 
 		Integer userId = userService.findIdByEmpId(empId);
-		if(!userService.existsById(userId)) {
+		if (!userService.existsById(userId)) {
 			return new ArrayList<>();
 		}
 		List<TeamDetails> teams = userTeamRoleRepository.findTeamsByUserId(userId);
@@ -66,14 +68,17 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public List<UserInfo> findNonTeamMembers(Integer teamId) {
-		if(!existsByTeamId(teamId))
+		if (!existsByTeamId(teamId))
 			return new ArrayList<>();
-		return userTeamRoleRepository.finNonTeamMembers(teamId);
+		Set<String> memberIds = userTeamRoleRepository.findTeamMembers(teamId).stream().map(member -> member.getEmpId())
+				.collect(Collectors.toSet());
+		return userService.findAll().stream().filter(user -> !memberIds.contains(user.getEmpId()))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Team getTeamFromId(Integer teamId) {
-		if(!existsByTeamId(teamId))
+		if (!existsByTeamId(teamId))
 			return null;
 		Team team = teamRepository.findById(teamId).get();
 		return team;
@@ -81,22 +86,42 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public void addTeamMembers(Integer teamId, List<String> empIds) {
-		if(!existsByTeamId(teamId))
+		if (!existsByTeamId(teamId))
 			return;
-		Team team = getTeamFromId(teamId);
-		Role role = roleService.getTeamMemberRole();
 		for (String empId : empIds) {
-			if (team!=null && userService.existsByEmpId(empId)) {
-				User user = userService.findByEmpId(empId);
-				if (user!=null && !userTeamRoleRepository.existsByUserAndTeamAndRole(user, team, role))
-					userTeamRoleRepository.save(new UserTeamRole(user, team, role));
+			if (userService.existsByEmpId(empId)) {
+				addTeamMember(teamId, empId);
 			}
 		}
 	}
 
 	@Override
+	public void addTeamMember(Integer teamId, String empId) {
+		if (!existsByTeamId(teamId) || !userService.existsByEmpId(empId))
+			return;
+		Team team = getTeamFromId(teamId);
+		Role role = roleService.getTeamMemberRole();
+		User user = userService.findByEmpId(empId);
+		if (user != null && !userTeamRoleRepository.existsByUserAndTeamAndRole(user, team, role))
+			userTeamRoleRepository.save(new UserTeamRole(user, team, role));
+
+	}
+
+	@Override
+	public void removeTeamMembers(Integer teamId, List<String> empIds) {
+
+		if (!existsByTeamId(teamId))
+			return;
+		for (String empId : empIds) {
+			if (userService.existsByEmpId(empId))
+				removeTeamMember(teamId, empId);
+
+		}
+	}
+
+	@Override
 	public void removeTeamMember(Integer teamId, String empId) {
-		if(!existsByTeamId(teamId) || !userService.existsByEmpId(empId))
+		if (!existsByTeamId(teamId) || !userService.existsByEmpId(empId))
 			return;
 		Integer userId = userService.findIdByEmpId(empId);
 		userTeamRoleRepository.deleteByUserId(userId, teamId);
@@ -104,8 +129,8 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public List<UserInfo> findTeamMembers(Integer teamId) {
-		if(!existsByTeamId(teamId))
-			return new ArrayList<>();;
+		if (!existsByTeamId(teamId))
+			return new ArrayList<>();
 		return userTeamRoleRepository.findTeamMembers(teamId);
 	}
 
@@ -144,7 +169,7 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public List<UserInfo> findTeamMembers(String teamName) {
-		if(!existsByTeamName(teamName))
+		if (!existsByTeamName(teamName))
 			return new ArrayList<>();
 		return userTeamRoleRepository.findTeamMembersByTeamName(teamName);
 	}

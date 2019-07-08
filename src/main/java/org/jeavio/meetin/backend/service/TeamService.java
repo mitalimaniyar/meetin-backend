@@ -18,7 +18,7 @@ public interface TeamService {
 
 	public void addTeamMembers(Integer teamId, List<String> empIds);
 
-	public void removeTeamMember(Integer teamId, String empId);
+	public void removeTeamMembers(Integer teamId, List<String> empIds);
 
 	public List<UserInfo> findTeamMembers(Integer teamId);
 
@@ -35,4 +35,8 @@ public interface TeamService {
 	public void updateTeamName(Integer teamId,String newTeamName);
 
 	public List<String> getTeamNames();
+
+	void removeTeamMember(Integer teamId, String empId);
+
+	void addTeamMember(Integer teamId, String empId);
 }

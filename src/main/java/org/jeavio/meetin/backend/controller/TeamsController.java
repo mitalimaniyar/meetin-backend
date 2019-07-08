@@ -151,14 +151,14 @@ public class TeamsController {
 
 	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/teams/{teamId}/remove")
-	public ResponseEntity<?> removeTeamMember(@RequestBody Map<String, String> body,
+	public ResponseEntity<?> removeTeamMember(@RequestBody Map<String,  List<String>> body,
 			@PathVariable(name = "teamId") Integer teamId) {
 		ResponseEntity<?> response = null;
-		String empId = body.get("empId");
+		List<String> empIds = body.get("empIds");
 		if (!teamService.existsByTeamId(teamId)) {
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Team not found."));
 		} else {
-			teamService.removeTeamMember(teamId, empId);
+			teamService.removeTeamMembers(teamId, empIds);
 			response = ResponseEntity.status(HttpStatus.OK)
 					.body(new ApiResponse(200, "Removed requested team member."));
 		}
