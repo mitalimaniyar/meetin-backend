@@ -31,7 +31,8 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events")
 	public ResponseEntity<?> getBookings() {
 		ResponseEntity<?> response = null;
-		response = ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventGroupByRoomName());
+		Map<String,List<EventDetails>> events = eventService.getAllEventGroupByRoomName();
+		response = ResponseEntity.status(HttpStatus.OK).body(events);
 		return response;
 	}
 
@@ -39,7 +40,8 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/all/{roomId}")
 	public ResponseEntity<?> getRoomBookings(@PathVariable(name = "roomId") Integer roomId) {
 		ResponseEntity<?> response = null;
-		response = ResponseEntity.status(HttpStatus.OK).body(eventService.findEventByRoomId(roomId));
+		List<EventDetails> events = eventService.findEventByRoomId(roomId);
+		response = ResponseEntity.status(HttpStatus.OK).body(events);
 		return response;
 	}
 
@@ -126,7 +128,7 @@ public class EventController {
 		return response;
 	}
 
-	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#body.get('eventId')),'DELETE_ACCESS')")
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#body.get('eventId')!=null?#body.get('eventId'):'none'),'DELETE_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/events")
 	public ResponseEntity<?> cancelEvent(@RequestBody Map<String, String> body) {
 		ResponseEntity<?> response = null;
@@ -144,7 +146,7 @@ public class EventController {
 		return response;
 	}
 
-	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#modifiedEvent.id),'MODIFY_ACCESS')")
+	@PreAuthorize("@authorizationManager.authorize(authentication,'EVENTS_'.concat(#modifiedEvent.id!=null?#modifiedEvent.id:'none'),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.PUT, path = "/api/events")
 	public ResponseEntity<?> modifyEventDetails(@Valid @RequestBody EventDTO modifiedEvent) {
 		ResponseEntity<?> response = null;

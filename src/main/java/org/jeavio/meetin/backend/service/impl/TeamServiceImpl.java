@@ -17,6 +17,7 @@ import org.jeavio.meetin.backend.service.RoleService;
 import org.jeavio.meetin.backend.service.TeamService;
 import org.jeavio.meetin.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -179,4 +180,13 @@ public class TeamServiceImpl implements TeamService {
 		return teamRepository.getTeamNames();
 	}
 
+	@Override
+	public List<UserInfo> findMembers(Integer teamId) {
+		return userTeamRoleRepository.findMembersByTeamId(teamId);
+	}
+
+	@Override
+	public List<UserInfo> findSuperAdmins(){
+		return userTeamRoleRepository.findSuperAdmins();
+	}
 }

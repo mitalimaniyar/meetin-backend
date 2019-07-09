@@ -39,4 +39,8 @@ public interface TeamService {
 	void removeTeamMember(Integer teamId, String empId);
 
 	void addTeamMember(Integer teamId, String empId);
+
+	public List<UserInfo> findMembers(Integer teamId);
+
+	List<UserInfo> findSuperAdmins();
 }

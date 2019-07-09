@@ -1,7 +1,5 @@
 package org.jeavio.meetin.backend.service.impl;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,9 +24,9 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public void notifyAll(EventDetails event, String type, String repeat) {
-		
+
 		NotificationRequest requestBody = prepareRequestBody(event, type, repeat);
-		log.info("Notification type : {} : Sending notifications to : {}", type,requestBody.getEmailIds());
+		log.info("Notification type : {} : Sending notifications to : {}", type, requestBody.getEmailIds());
 		ApiResponse response = notificationClient.sendNotification(requestBody);
 		if (response.getCode() != 200)
 			log.info("Sending Notification failed.");
@@ -40,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
 		NotificationRequest requestBody = new NotificationRequest(type, emailIds, notificationEvent);
 		return requestBody;
 	}
-	
+
 	private List<String> getNotifiers(EventDetails event) {
 		List<String> emailIds = new ArrayList<String>();
 		emailIds.add(event.getOrganizer().getEmail());
@@ -51,15 +49,10 @@ public class NotificationServiceImpl implements NotificationService {
 	private NotificationDTO getNotification(EventDetails event, String repeat) {
 		List<String> members = new ArrayList<String>();
 		event.getMembers().forEach(member -> members.add(member.getName()));
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		Date start = null;
 		Date end = null;
-		try {
-			start = format.parse(event.getStart());
-			end = format.parse(event.getEnd());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		start = event.getStart();
+		end = event.getEnd();
 		NotificationDTO notification = new NotificationDTO(event.getTitle(), event.getAgenda(),
 				event.getOrganizer().getName(), event.getRoomName(), event.getRoomSpecifications(), members, start, end,
 				repeat);
@@ -68,10 +61,10 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	public void notifyAll(EventDetails event, String type, String repeat,List<String> membersEmails) {
+	public void notifyAll(EventDetails event, String type, String repeat, List<String> membersEmails) {
 		NotificationRequest requestBody = prepareRequestBody(event, type, repeat);
 		requestBody.setEmailIds(membersEmails);
-		log.info("Notification type : {} : Sending notifications to : {}", type,requestBody.getEmailIds());
+		log.info("Notification type : {} : Sending notifications to : {}", type, requestBody.getEmailIds());
 		ApiResponse response = notificationClient.sendNotification(requestBody);
 		if (response.getCode() != 200)
 			log.info("Sending Notification failed.");

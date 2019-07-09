@@ -183,7 +183,8 @@ public class EventServiceImpl implements EventService {
 		Map<String, String> requestBody = new LinkedHashMap<String, String>();
 
 		requestBody.put("roomName", roomName);
-		return eventManager.getEventByRoomName(requestBody);
+		List<EventDetails> events = eventManager.getEventByRoomName(requestBody);
+		return events;
 	}
 
 	@Override
@@ -266,7 +267,7 @@ public class EventServiceImpl implements EventService {
 			String roomSpecifications = roomService.getRoomSpecifications(roomName);
 			event.setRoomSpecifications(roomSpecifications);
 		}
-		if (changed(event.getStart(), event.getEnd())) {
+		if (changed(format.format(event.getStart()), modifiedEvent.getStart())) {
 			try {
 				Date newStart = format.parse(modifiedEvent.getStart());
 				event.setStart(newStart);
@@ -275,7 +276,7 @@ public class EventServiceImpl implements EventService {
 			}
 
 		}
-		if (changed(event.getEnd(), modifiedEvent.getEnd())) {
+		if (changed(format.format(event.getEnd()), modifiedEvent.getEnd())) {
 			try {
 				Date newEnd = format.parse(modifiedEvent.getEnd());
 				event.setEnd(newEnd);
@@ -342,8 +343,8 @@ public class EventServiceImpl implements EventService {
 		String oldRoom = event.getRoomName();
 		String newRoom = modifiedEvent.getRoomName();
 
-		Date oldStart = format.parse(event.getStart());
-		Date oldEnd = format.parse(event.getEnd());
+		Date oldStart = event.getStart();
+		Date oldEnd = event.getEnd();
 		Date newStart = format.parse(modifiedEvent.getStart());
 		Date newEnd = format.parse(modifiedEvent.getEnd());
 		if (newRoom.equals(oldRoom) && newStart.equals(oldStart) && newEnd.equals(oldEnd)) {

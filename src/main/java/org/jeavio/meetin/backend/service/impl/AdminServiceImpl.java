@@ -3,6 +3,7 @@ package org.jeavio.meetin.backend.service.impl;
 import java.util.List;
 
 import org.jeavio.meetin.backend.dao.UserTeamRoleRepository;
+import org.jeavio.meetin.backend.dto.UserInfo;
 import org.jeavio.meetin.backend.model.Role;
 import org.jeavio.meetin.backend.model.Team;
 import org.jeavio.meetin.backend.model.User;
@@ -77,6 +78,12 @@ public class AdminServiceImpl implements AdminService {
 			userTeamRoleRepository.save(new UserTeamRole(user, null, role));
 		}
 		return true;
+	}
+
+	@Override
+	public List<UserInfo> findAdmins() {
+		List<UserInfo> admins = userTeamRoleRepository.findSuperAdmins();
+		return admins;
 	}
 
 	
