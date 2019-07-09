@@ -23,7 +23,7 @@ public class AspectLogger {
 	@Pointcut("execution(* org.jeavio.meetin.backend.controller.*.*(..))")
 	public void restCalls() {}
 
-	@Before("execution(* org.jeavio.meetin.backend.service.impl.*.*(..))")
+	@Before("serviceCalls() || restCalls()")
 	public void before(JoinPoint thisJoinPoint) {
 		
 		log = LoggerFactory.getLogger(thisJoinPoint.getTarget().getClass());

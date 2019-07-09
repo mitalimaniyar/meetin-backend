@@ -31,7 +31,8 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events")
 	public ResponseEntity<?> getBookings() {
 		ResponseEntity<?> response = null;
-		response = ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventGroupByRoomName());
+		Map<String,List<EventDetails>> events = eventService.getAllEventGroupByRoomName();
+		response = ResponseEntity.status(HttpStatus.OK).body(events);
 		return response;
 	}
 
@@ -39,7 +40,8 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events/all/{roomId}")
 	public ResponseEntity<?> getRoomBookings(@PathVariable(name = "roomId") Integer roomId) {
 		ResponseEntity<?> response = null;
-		response = ResponseEntity.status(HttpStatus.OK).body(eventService.findEventByRoomId(roomId));
+		List<EventDetails> events = eventService.findEventByRoomId(roomId);
+		response = ResponseEntity.status(HttpStatus.OK).body(events);
 		return response;
 	}
 

@@ -1,8 +1,11 @@
 package org.jeavio.meetin.backend.dto;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+//import org.jeavio.meetin.backend.config.MongoDateConverter;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class EventDetails {
 
@@ -11,7 +14,9 @@ public class EventDetails {
 	private String agenda;
 	private String roomName;
 	private String roomSpecifications;
+//	@JsonDeserialize(using = MongoDateConverter.class)
 	private Date start;
+//	@JsonDeserialize(using = MongoDateConverter.class)
 	private Date end;
 	private UserInfo organizer;
 	private List<MemberInfo> members;
@@ -85,18 +90,16 @@ public class EventDetails {
 		this.roomName = roomName;
 	}
 
-	public String getStart() {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		return format.format(start);
+	public Date getStart() {
+		return start;
 	}
 
 	public void setStart(Date start) {
 		this.start = start;
 	}
 
-	public String getEnd() {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		return format.format(end);
+	public Date getEnd() {
+		return end;
 	}
 
 	public void setEnd(Date end) {

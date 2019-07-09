@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserTeamRoleRepository extends CrudRepository<UserTeamRole, Integer> {
 
-	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.id = :teamId")
+	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.id = :teamId AND utr.role.role = 'team_member' ")
 	public List<UserInfo> findMembersByTeamId(@Param("teamId") Integer teamId);
 
 	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.TeamDetails(utr.team.id,utr.team.teamName) from UserTeamRole utr WHERE utr.team IS NOT NULL AND utr.user.id = :userId")
@@ -44,13 +44,15 @@ public interface UserTeamRoleRepository extends CrudRepository<UserTeamRole, Int
 	public boolean existsAsAdmin(@Param("user") User user, @Param("role") Role role);
 
 	public UserTeamRole findByUserAndTeamAndRole(User user, Team team, Role memberRole);
-	
+
 	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.id = :teamId")
 	public List<UserInfo> findTeamMembers(Integer teamId);
 
 	public boolean existsByUserAndTeamAndRole(User user, Team team, Role role);
 
 	@Query("SELECT DISTINCT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.team.teamName = :teamName")
-	public List<UserInfo> findTeamMembersByTeamName(@Param("teamName")String teamName);
+	public List<UserInfo> findTeamMembersByTeamName(@Param("teamName") String teamName);
 
+	@Query("SELECT new org.jeavio.meetin.backend.dto.UserInfo(utr.user.id,utr.user.empId,utr.user.firstName,utr.user.lastName,utr.user.email) FROM UserTeamRole utr WHERE utr.role.role = 'super_admin' AND utr.team IS NULL")
+	public List<UserInfo> findSuperAdmins();
 }

@@ -151,7 +151,7 @@ public class TeamsController {
 
 	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'MODIFY_ACCESS')")
 	@RequestMapping(method = RequestMethod.DELETE, path = "/api/teams/{teamId}/remove")
-	public ResponseEntity<?> removeTeamMember(@RequestBody Map<String,  List<String>> body,
+	public ResponseEntity<?> removeTeamMember(@RequestBody Map<String, List<String>> body,
 			@PathVariable(name = "teamId") Integer teamId) {
 		ResponseEntity<?> response = null;
 		List<String> empIds = body.get("empIds");
@@ -174,6 +174,19 @@ public class TeamsController {
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "No Records Found"));
 		else
 			response = ResponseEntity.status(HttpStatus.OK).body(teams);
+		return response;
+	}
+
+	@PreAuthorize("@authorizationManager.authorize(authentication,'TEAM_OPS_'.concat(#teamId),'VIEW_ACCESS')")
+	@RequestMapping(method = RequestMethod.GET, path = "/api/teams/{teamId}/members")
+	public ResponseEntity<?> getNonTeamAdmins(@PathVariable(name = "teamId") Integer teamId) {
+		ResponseEntity<?> response = null;
+		if (!teamService.existsByTeamId(teamId)) {
+			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Team not found."));
+		} else {
+			List<UserInfo> members = teamService.findMembers(teamId);
+			response = ResponseEntity.status(HttpStatus.OK).body(members);
+		}
 		return response;
 	}
 }
