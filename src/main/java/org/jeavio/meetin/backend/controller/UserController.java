@@ -130,7 +130,7 @@ public class UserController {
 					.body(new ApiResponse(500, "Unable to find requested user."));
 		} else {
 			int status = userService.changePassword(empId,body);
-			if (status == 200) {
+			if (status == 200 || status ==400) {
 				response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Change Password Successful"));
 			}else {
 				response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
