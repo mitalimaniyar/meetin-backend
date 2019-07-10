@@ -38,7 +38,7 @@ public class AspectLogger {
 	public void after(JoinPoint thisJoinPoint, Object retVal) {
 		
 		log = LoggerFactory.getLogger(thisJoinPoint.getTarget().getClass());
-		
+		log.debug("Returning from "+thisJoinPoint.getSignature().toString());
 		if(retVal!=null)
 			log.debug("Returning : " + retVal);
 	}

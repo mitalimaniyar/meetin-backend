@@ -12,6 +12,7 @@ import org.jeavio.meetin.backend.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +23,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	private static Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
+	@Async
 	@Override
 	public void notifyAll(EventDetails event, String type, String repeat) {
 
@@ -60,6 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	}
 
+	@Async
 	@Override
 	public void notifyAll(EventDetails event, String type, String repeat, List<String> membersEmails) {
 		NotificationRequest requestBody = prepareRequestBody(event, type, repeat);
