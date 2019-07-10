@@ -10,7 +10,7 @@ import org.jeavio.meetin.backend.dto.EventDetails;
 
 public interface EventService {
 
-	public boolean addEvent(EventDTO newEvent, String empId);
+	public String addEvent(EventDTO newEvent, String empId);
 
 	public boolean checkSlotAvailability(String roomName, Date start, Date end);
 
@@ -37,4 +37,6 @@ public interface EventService {
 	boolean checkModifiedSlotAvailability(EventDetails event, EventDTO modifiedEvent) throws ParseException;
 
 	public boolean checkSlotAvailability(EventDTO modifiedEvent);
+
+	public boolean checkTime(String start, String end);
 }

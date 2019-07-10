@@ -31,7 +31,7 @@ public class EventController {
 	@RequestMapping(method = RequestMethod.GET, path = "/api/events")
 	public ResponseEntity<?> getBookings() {
 		ResponseEntity<?> response = null;
-		Map<String,List<EventDetails>> events = eventService.getAllEventGroupByRoomName();
+		Map<String, List<EventDetails>> events = eventService.getAllEventGroupByRoomName();
 		response = ResponseEntity.status(HttpStatus.OK).body(events);
 		return response;
 	}
@@ -112,18 +112,21 @@ public class EventController {
 			return response;
 		}
 		String empId = ((AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
+		if (newEvent.getStart() == null || newEvent.getEnd() == null
+				|| eventService.checkTime(newEvent.getStart(), newEvent.getEnd())) {
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(500,"Start time is after end time"));
+		}
 
 		if (!eventService.checkSlotAvailability(newEvent.getRoomName(), newEvent.getStart(), newEvent.getEnd())) {
 			response = ResponseEntity.status(HttpStatus.CONFLICT)
 					.body(new ApiResponse(409, "Unable to add event. Requested time slot is conflicting."));
 			return response;
 		}
-		boolean status = eventService.addEvent(newEvent, empId);
-		if (status) {
-			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));
+		String message = eventService.addEvent(newEvent, empId);
+		if (message.equals("Success")) {
+			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, message));
 		} else {
-			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new ApiResponse(500, "Unable to add event"));
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(500, message));
 		}
 		return response;
 	}
@@ -152,6 +155,10 @@ public class EventController {
 		ResponseEntity<?> response = null;
 		if (modifiedEvent.getId() == null || !eventService.existsById(modifiedEvent.getId())) {
 			response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "Event Not found"));
+		} else if (modifiedEvent.getStart() == null || modifiedEvent.getEnd() == null
+				|| eventService.checkTime(modifiedEvent.getStart(), modifiedEvent.getEnd())) {
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse(500, "Start time is after end time"));
 		} else if (!eventService.checkSlotAvailability(modifiedEvent)) {
 			response = ResponseEntity.status(HttpStatus.CONFLICT)
 					.body(new ApiResponse(409, "Unable to update event. Requested time slot is conflicting."));
