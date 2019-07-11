@@ -5,12 +5,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jeavio.meetin.backend.dto.ConflictReportDTO;
 import org.jeavio.meetin.backend.dto.EventDTO;
 import org.jeavio.meetin.backend.dto.EventDetails;
 
 public interface EventService {
 
-	public String addEvent(EventDTO newEvent, String empId);
+	public ConflictReportDTO addEvent(EventDTO newEvent, String empId);
 
 	public boolean checkSlotAvailability(String roomName, Date start, Date end);
 

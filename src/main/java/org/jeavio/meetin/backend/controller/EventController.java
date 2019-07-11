@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.jeavio.meetin.backend.dto.ApiResponse;
+import org.jeavio.meetin.backend.dto.ConflictReportDTO;
 import org.jeavio.meetin.backend.dto.EventDTO;
 import org.jeavio.meetin.backend.dto.EventDetails;
 import org.jeavio.meetin.backend.security.AppUser;
@@ -114,7 +115,8 @@ public class EventController {
 		String empId = ((AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmpId();
 		if (newEvent.getStart() == null || newEvent.getEnd() == null
 				|| eventService.checkTime(newEvent.getStart(), newEvent.getEnd())) {
-			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(500,"Start time is after end time"));
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse(500, "Start time is after end time"));
 		}
 
 		if (!eventService.checkSlotAvailability(newEvent.getRoomName(), newEvent.getStart(), newEvent.getEnd())) {
@@ -122,12 +124,14 @@ public class EventController {
 					.body(new ApiResponse(409, "Unable to add event. Requested time slot is conflicting."));
 			return response;
 		}
-		String message = eventService.addEvent(newEvent, empId);
-		if (message.equals("Success")) {
-			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, message));
-		} else {
-			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(500, message));
-		}
+		ConflictReportDTO conficts = eventService.addEvent(newEvent, empId);
+		if (conficts.getRoomName() == null)
+			response = ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(200, "Success"));
+		else if (conficts.getRoomName() != null && conficts.getDates().isEmpty())
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiResponse(500, "Unable to add event"));
+		else
+			response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(conficts);
 		return response;
 	}
 

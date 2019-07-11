@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.jeavio.meetin.backend.api.EventManagerClient;
+import org.jeavio.meetin.backend.dto.ConflictReportDTO;
 import org.jeavio.meetin.backend.dto.EventDTO;
 import org.jeavio.meetin.backend.dto.EventDetails;
 import org.jeavio.meetin.backend.dto.MemberInfo;
@@ -44,16 +44,13 @@ public class EventServiceImpl implements EventService {
 	NotificationService notificationService;
 
 	private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	private static final SimpleDateFormat messageDateFormat = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
-
+	
 	@Override
-	public String addEvent(EventDTO newEvent, String empId) {
-		String message = "Success";
+	public ConflictReportDTO addEvent(EventDTO newEvent, String empId) {
+		ConflictReportDTO conflicts = new ConflictReportDTO(newEvent.getRoomName(), null, null);
 		int conflictFlag = 0;
-		if (!userService.existsByEmpId(empId)) {
-			message = "User Not Found";
-			return message;
-		}
+		if (!userService.existsByEmpId(empId))
+			return conflicts;
 		String title = newEvent.getTitle();
 		String agenda = newEvent.getAgenda();
 		String roomName = newEvent.getRoomName();
@@ -65,23 +62,15 @@ public class EventServiceImpl implements EventService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		if (!roomService.existsByRoomName(roomName)) {
-			message = "Room not found";
-			return message;
-		}
-		if (start == null || end == null) {
-			message = "Unexpected date format detected";
-			return message;
-		}
-		if (start.after(end)) {
-			message = "Start time is after end time";
-			return message;
-		}
+		if (!roomService.existsByRoomName(roomName))
+			return conflicts;
+		if (start == null || end == null)
+			return conflicts;
+		if (start.after(end))
+			return conflicts;
 		String roomSpecifications = roomService.getRoomSpecifications(roomName);
-		if (!checkSlotAvailability(roomName, start, end)) {
-			message = "Requested slot is unavailable";
-			return message;
-		}
+		if (!checkSlotAvailability(roomName, start, end))
+			return conflicts;
 
 		UserInfo organizer = getOrganizer(empId);
 		List<MemberInfo> participants = getParticipants(newEvent, empId);
@@ -93,8 +82,7 @@ public class EventServiceImpl implements EventService {
 		if (status) {
 			notificationService.notifyAll(event, "create", repeat);
 		} else {
-			message = "Unable to book event";
-			return message;
+			return conflicts;
 		}
 
 		int frequency = 0;
@@ -119,48 +107,29 @@ public class EventServiceImpl implements EventService {
 				if (!status) {
 					if (conflictFlag == 0) {
 						conflictFlag = 1;
-						message = "Conflicts occured during bookings on following dates.\n";
+						conflicts = new ConflictReportDTO(roomName, newStart, newEnd);
+					} else {
+						conflicts.addDate(newStart, newEnd);
 					}
-					message += "Room: ";
-					message += roomName;
-					message += " Slot: ";
-					message += getConfictDate(newStart, newEnd);
-					message += "\n";
 
 				}
 			} else {
 
 				if (conflictFlag == 0) {
 					conflictFlag = 1;
-					message = "Conflicts occured during bookings on following dates.\n";
+					conflicts = new ConflictReportDTO(roomName, newStart, newEnd);
+				} else {
+					conflicts.addDate(newStart, newEnd);
 				}
-				message += "Room: ";
-				message += roomName;
-				message += " Slot: ";
-				message += getConfictDate(newStart, newEnd);
-				message += "\n";
-
 			}
 			oldStart = newStart;
 			oldEnd = newEnd;
 			frequency--;
 		}
-		return message;
-	}
-
-	private String getConfictDate(Date newStart, Date newEnd) {
-
-		String date = null;
-		if (DateUtils.isSameDay(newStart, newEnd)) {
-			String start = messageDateFormat.format(newStart);
-			String end = new SimpleDateFormat("hh:mm a").format(newEnd);
-			date = start + "-" + end;
-		} else {
-			String start = messageDateFormat.format(newStart);
-			String end = messageDateFormat.format(newEnd);
-			date = start + "-" + end;
-		}
-		return date;
+		if(conflictFlag == 0)
+			return new ConflictReportDTO();
+		else
+			return conflicts;
 	}
 
 	private UserInfo getOrganizer(String empId) {
@@ -438,14 +407,14 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public boolean checkTime(String start, String end) {
-		Date startDate = null,endDate = null;
+		Date startDate = null, endDate = null;
 		try {
 			startDate = format.parse(start);
 			endDate = format.parse(end);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		if(startDate==null || endDate==null || startDate.after(endDate))
+		if (startDate == null || endDate == null || startDate.after(endDate))
 			return false;
 		else
 			return true;
